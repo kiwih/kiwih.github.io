@@ -1,4 +1,4 @@
-<i>01001000, or "zero-onehundred-onethousand", is 'H' in ASCII</i>
+<center><i>01001000, or "zero,one-hundred,one-thousand", is 'H' in ASCII</i></center>
 
 # Welcome!
 
