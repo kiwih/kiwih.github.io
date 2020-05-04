@@ -25,7 +25,7 @@ Here are pictures of the front and back of one of the LED modules.
 Straight away we can see several interesting pieces of information. 
 * The modules have a well-labelled 12V power supply input
 * The modules appear to have an INPUT port and an OUTPUT port, presumably for data
-* There is a part number 'FX13-P013V2.0', or possibly 'BR43.13'
+* There is a part number 'FX13-P013V2.0', or possibly 'BR43.13'. Unfortunately, neither of these part numbers return anything on Google.
 * There is what could be a date from 2013 on a sticker (although it has 2 digits too many?), as well as a QC passed label
 
 The input port is interesting:
