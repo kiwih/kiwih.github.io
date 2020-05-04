@@ -36,9 +36,10 @@ Thanks to the labels (Whoever designed this PCB, seriously, thanks) this gives u
 'GND' are grounds, 'OE' is almost certainly 'output enable', 'CLK' is a clock which implies a serial control scheme of some kind, 'LAT' is probably short for 'latch', and R1/R2/G1/G2/B1/B2 are likely the colour inputs. 
 
 I paused at this point for dinner, and flicked a message to a former colleague that used to work at a tech company involved in digital road signs (among other things), asking him if there was a standard control scheme for LED modules such as these. He said that usually they were designed upon standard shift registers - direct quote "The modules are usually dumb, intelligence is in the controllers".
-I took a closer look at the ICs that were stamped around the board - I found only two kinds.
+
+So, once I got back, I took a closer look at the ICs that were stamped around the board - I found only two kinds.
 1. Located near the INPUT and OUTPUT ports are 74HC245 chips. These are 'Octal Bus Trancievers' and appear to be being used as I/O protection.
-2. Located between groups of LEDs are MBI5024 chips. Looking these up online, they are Shift Registers designed for use in applications such as LED boards - fancy that! Also, it looks like my former colleague was correct - seems like we just need to shift in data to display it.
+2. Located between groups of LEDs are MBI5024 chips. Looking these up online, they are Shift Registers designed for use in applications such as LED boards - fancy that! This also gives credence to my former colleague's theory - it sure seems like we'll just need to shift in data to display it.
 
 I recreate the block diagram for the MBI2054 here:
 ![MBI2054 block diagram]({{ 'assets/img/ledmatrix/mbi5024-block-diagram.png' | relative_url }}){: .mx-auto.d-block :}
