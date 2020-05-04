@@ -15,6 +15,8 @@ I grabbed as many as I could carry on the bike and carried on home, keen to see 
 
 Note: All work used in this blog post is published [on my Github](https://github.com/kiwih/LedMatrix).
 
+Second note: After I posted this to [Reddit](https://www.reddit.com/r/electronics/comments/gd53bn/reverse_engineering_an_led_matrix_module_found_in/), user /u/dakesew identified the protocol as a subset of Hub75, discussed further at the end of this post.
+
 # First impressions
 
 Here are pictures of the front and back of one of the LED modules.
@@ -80,23 +82,23 @@ void Disp_Send(uint8_t val, uint8_t color_pin) {
 	//for each bit in val
 	for(int i=0; i < 8; i++) {
 		//put the i-th bit onto the color_pin pin
-		PORT_COLORS = 0;
+		PORT_MATRIX_COLORS = 0;
 		if((0x80 >> i) & val) {
 			PORT_COLORS |= (1 << color_pin);
 		}
 		
 		//now toggle the CLK pin to store the bit
 		_delay_us(1); //first delay is for settling time
-		PORT_CTRL |= (1 << PIN_CLK);
+		PORT_MATRIX_CTRL |= (1 << PIN_CLK);
 		_delay_us(1);
-		PORT_CTRL &= ~(1 << PIN_CLK);
+		PORT_MATRIX_CTRL &= ~(1 << PIN_CLK);
 	}
 
 	//now latch the output by toggling the LAT pin
 	_delay_us(1); //first delay is for settling time
-	PORT_CTRL |= (1 << PIN_LAT);
+	PORT_MATRIX_CTRL |= (1 << PIN_LAT);
 	_delay_us(1);
-	PORT_CTRL &= ~(1 << PIN_LAT);
+	PORT_MATRIX_CTRL &= ~(1 << PIN_LAT);
 }
 ```
 
@@ -141,7 +143,7 @@ In the `main()`, I simply called `Disp_Send(0xFF, PIN_G1)` with a short delay ov
 To prevent cooking my power supply and further searing of my eyeballs, I also configured the OE pin as a PWM, keeping the display on only 6.25% of the time (16 cycles of every 256). 
 
 I grabbed one of the other LED modules now, one which was missing several LEDs on the PCB, so that if something went wrong I wouldn't break one of the modules that appeared to be in better condition. I was able to see data coming onto the screen! I modified the code slightly to use both pins 1/2 of each color, and then produced the following output:
-<video width="384" height="288" controls>
+<video controls>
   <source src="{{ '/assets/vid/ledmatrix/led-matrix-fill.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -332,7 +334,7 @@ void Display_TransmitBuffer() {
 ```
 
 We then add a function to add pixels and lines, and can generate the following output:
-<video width="720" height="480" controls>
+<video controls>
   <source src="{{ '/assets/vid/ledmatrix/lines.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -340,7 +342,7 @@ Your browser does not support the video tag.
 From here, it also isn't hard to add support for further features, e.g. text, circles, etc. 
 I also modified the code so that it can support daisy-chained modules in the horizontal direction! 
 
-<video width="720" height="480" controls>
+<video controls>
   <source src="{{ '/assets/vid/ledmatrix/wide.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -354,3 +356,9 @@ In terms of the hardware, well, I couldn't find the modules online anywhere, but
 
 At any rate, thanks for reading - hopefully you found it interesting!
 
+# Community input
+
+I posted this to [Reddit](https://www.reddit.com/r/electronics/comments/gd53bn/reverse_engineering_an_led_matrix_module_found_in/) if you'd like to comment!
+Already, user /u/dakesew identified the protocol as a subset of Hub75, which is a protocol designed for control of large RGB LED panels (often 32x32 or 16x32).
+The complete protocol mentions usage of the four grouped pins I marked as NC in the middle connector, calling them A/B/C/D, and mentioned that they are used for row addressing.
+On my panels they do not seem to be connected, however. Perhaps this is because my panels have fewer pixels (16x16), and/or the protocol was adopted incorrectly for this design.
