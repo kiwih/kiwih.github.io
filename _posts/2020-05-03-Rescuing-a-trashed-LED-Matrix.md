@@ -143,7 +143,7 @@ In the `main()`, I simply called `Disp_Send(0xFF, PIN_G1)` with a short delay ov
 To prevent cooking my power supply and further searing of my eyeballs, I also configured the OE pin as a PWM, keeping the display on only 6.25% of the time (16 cycles of every 256). 
 
 I grabbed one of the other LED modules now, one which was missing several LEDs on the PCB, so that if something went wrong I wouldn't break one of the modules that appeared to be in better condition. I was able to see data coming onto the screen! I modified the code slightly to use both pins 1/2 of each color, and then produced the following output:
-<video controls>
+<video width='100%' controls>
   <source src="{{ '/assets/vid/ledmatrix/led-matrix-fill.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -334,7 +334,7 @@ void Display_TransmitBuffer() {
 ```
 
 We then add a function to add pixels and lines, and can generate the following output:
-<video controls>
+<video width='100%' controls>
   <source src="{{ '/assets/vid/ledmatrix/lines.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -342,7 +342,7 @@ Your browser does not support the video tag.
 From here, it also isn't hard to add support for further features, e.g. text, circles, etc. 
 I also modified the code so that it can support daisy-chained modules in the horizontal direction! 
 
-<video controls>
+<video width='100%' controls>
   <source src="{{ '/assets/vid/ledmatrix/wide.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
