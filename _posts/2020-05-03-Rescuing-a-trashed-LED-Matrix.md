@@ -7,14 +7,13 @@ gh-badge: [star, fork, follow]
 tags: [embedded]
 ---
 
-[Github project link](https://github.com/kiwih/LedMatrix)
-
-# Background
-
 I was cycling through a light industrial area in Auckland City when I came across a rubbish bin awaiting pickup on the side of the road. 
 It caught my eye as it was practically overflowing with discarded LED Matrix modules - big ones, about a foot in each dimension!
-I couldn't believe it - firstly, discarding e-waste in a manner such as this is actually illegal in New Zealand, and secondly, the LED modules - for the most part - actually looked to be in pretty good condition!
+I couldn't believe it - firstly, discarding e-waste in a manner such as this is actually illegal in New Zealand. 
+Secondly, the LED modules - for the most part - actually looked to be in pretty good condition!
 I grabbed as many as I could carry on the bike and carried on home, keen to see if I could get them going!
+
+Note: All work used in this blog post is published [on my Github](https://github.com/kiwih/LedMatrix).
 
 # First impressions
 
