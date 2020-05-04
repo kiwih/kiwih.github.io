@@ -41,8 +41,7 @@ I took a closer look at the ICs that were stamped around the board - I found onl
 2. Located between groups of LEDs are MBI5024 chips. Looking these up online, they are Shift Registers designed for use in applications such as LED boards - fancy that! Also, it looks like my former colleague was correct - seems like we just need to shift in data to display it.
 
 I recreate the block diagram for the MBI2054 here:
-![MBI2054 block diagram]({{ 'assets/img/mbi5024-block-diagram.png' | relative_url }}){: .mx-auto.d-block :}
-(Source: )
+![MBI2054 block diagram]({{ 'assets/img/ledmatrix/mbi5024-block-diagram.png' | relative_url }}){: .mx-auto.d-block :}
 
 We can also get the following helpful information out of the data sheet:
 
