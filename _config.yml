@@ -1,7 +1,7 @@
 # --- Basic options --- #
 
 # Name of website
-title: Projects by kiwih
+title: projects by kiwih
 
 # Short description of your site
 description: I like to tinker and make things and sometimes write about what I've done
@@ -18,10 +18,10 @@ navbar-links:
 
 # Image to show in the navigation bar - works best with a square image
 # Remove this parameter if you don't want an image in the navbar
-# avatar: "/assets/img/avatar-icon.png"
+avatar: "/assets/img/logo.png"
 
 # By default, the image is cut into a circle. You can disable this behaviour here.
-# round-avatar: true
+round-avatar: true
 
 # If you want to have an image logo in the top-left corner instead of the title text,
 # then specify the following parameter
