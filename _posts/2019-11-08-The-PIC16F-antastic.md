@@ -8,11 +8,11 @@ gh-badge: [star, fork, follow]
 tags: [fpga]
 ---
 
-Note: This project was created before this blog existed, and as such is awaiting a more detailed write up.
-
 In this project I set out to create a  cycle-accurate FPGA-ready clone of the picmicro-midrange core, i.e. it is a PIC on an FPGA!
 While there are other FPGA ready clones of PICs, I still wanted to make my own - mainly as a learning experience! 
 As a point of difference, however, I set out to make it cycle accurate (it seems most/all the other designs are their own implementations of the ISA, with potentially different timing and clock cycle properties).
+
+*Note: This project was created before this blog existed, and as such is awaiting a more detailed write up.*
 
 The PIC16F-antastic was designed entirely from the information in the Microchip datasheets.
 It's mostly written in Verilog, but some small parts (mainly the testbenches) are written in SystemVerilog.
