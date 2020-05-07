@@ -1,9 +1,9 @@
 ---
 layout: post
 title: 'Walkthrough: Reading an Agilent oscilloscope via RS232'
-subtitle: Enabling data transfer from scope to PC
-#gh-repo: kiwih/LedMatrix
-#gh-badge: [star, fork, follow]
+subtitle: Enabling data transfer from 'scope to PC
+gh-repo: kiwih/agilent-rs232
+gh-badge: [star, fork, follow]
 tags: [oscilloscope, tooling, python]
 ---
 
