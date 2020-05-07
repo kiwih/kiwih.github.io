@@ -19,7 +19,7 @@ However, while I was looking it over, I noted the presence of an RS232 port:
 
 (I also noted this ominous warning message)
 
-![Scope Warning]({{ 'assets/img/agilent-rs232/warning.jpg' | relative_url }}){: .mx-auto.d-block :}
+![Scope Warning]({{ 'assets/img/agilent-rs232/xray-warning.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 The presence of the RS232 got me thinking - Having never owned an Agilent oscilloscope before, I wonder what sort of data can be sent and recieved via this port?
 
@@ -74,14 +74,20 @@ First we need to decide what to say. The programmer's guide, from page 8-5 onwar
 
 ![IDN definition]({{ 'assets/img/agilent-rs232/idn-def.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-The manual notes on page 5-8 that "the quoted string is placed on the command bus followed by a carriage return and linefeed (CRLF)",
-but also notes on page 1-13 that "The program instructions within a data message are executed after the program message terminator is received. The terminator may be either an NL (New Line) character, an EOI (End-Or-Identify) asserted in the GPIB interface, or a combination of the two. ... The NL character is an ASCII linefeed (decimal 10)".
-It sounds like we could use either `/r/n` or just `/n`. I'll use `\n`.
+The manual notes on page 5-8 that 
+
+> the quoted string is placed on the command bus followed by a carriage return and linefeed (CRLF)",
+
+but also notes on page 1-13 that 
+
+> The program instructions within a data message are executed after the program message terminator is received. The terminator may be either an NL (New Line) character, an EOI (End-Or-Identify) asserted in the GPIB interface, or a combination of the two. ... The NL character is an ASCII linefeed (decimal 10)".
+
+It sounds like we could use either `\r\n` or just `\n`. I'll use `\n`.
 
 We now have everything we need to try and talk to the scope. 
 Any tool should do - we could try using PuTTY (Windows) or minicom (Ubuntu), but actually I'm going to use Python3 using the pyserial library and just leap straight in to it.
 
-`agilent-rs232.py`:
+New file, `agilent-rs232.py`:
 
 ```python
 import serial
@@ -112,11 +118,11 @@ And let's now try execute this:
 
 Absolutely brilliant! We're officially talking!
 
-*Note: I found that depending on the state of the program inside the oscilloscope, sometimes the first command I sent would fail. This was probably because I was doing a lot of experimentation and kept leaving it hanging, as it were. If it becomes an issue for you you can try sending a `\n` before you send anything else.*
+*Note: I found that depending on the state of the program inside the oscilloscope, sometimes the first command I sent would fail. This was probably because I was doing a lot of experimentation and kept leaving it hanging, as it were. If it becomes an issue for you, you can try sending a `\n` before you send anything else.*
 
 # A program to read the screen
 
-Simply getting the identity of an oscilloscope is not tremendously interesting. What I really want here is to be able to read out the data the oscilloscope is currently seeing, so that I can perform captures with my computer.
+Simply getting the identity of an oscilloscope is not tremendously interesting. What I really want here is to be able to read out the data the oscilloscope is currently seeing, so that I can analyse waveform data with my computer.
 
 The programmer's guide is actually really helpful here. It seems that anything you can do on the oscilloscope with buttons, you can also do via command queries.  
 I'm not actually so interested in that (for the purposes of this tutorial), since in general it is likely to be quicker to set up any captures I want to do using the physical buttons on the machine.
@@ -140,7 +146,7 @@ To make sure we're capturing something, I'm going to attach the scope's Channel 
 ![Scope autoscale]({{ 'assets/img/agilent-rs232/autoscale.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 The first command I'm interested in is the `:WAVEform:FORMat` command. 
-That seems to set up the format of our incoming data. Transmitting in ASCII could be good for debugging, but I expect the additional overhead isn't worth it when reading in screenloads of data. That leaves BYTE or WORD. When examining the documentation, this "reading" works a little like a microcontroller's ADC, and we're essentially choosing the resolution of our returned data. Given that, I'm going to go with WORD format, so that we get 16 bits of resolution.
+That seems to set up the format of our incoming data. Transmitting in ASCII could be good for debugging, but I expect the additional overhead isn't worth it when reading in screenloads of data. That leaves BYTE or WORD. When examining the documentation, this "reading" works a little like a microcontroller's ADC - we're essentially choosing the resolution of our returned data. Given that, I'm going to go with WORD format, so that we get 16 bits of resolution.
 Given this is two bytes per value, we now need to choose what order we want to receive them in - I'll go with "most significant byte" MSB first, since that makes logical sense to me (if it was base 10, and we were transmitting the number twenty-three, MSB first means we receive the 2 and then the 3 in that order).
 Finally it appears we need to choose if we want signed or unsigned numbers. This doesn't make a big difference to me, so I went with the default (signed).
 
