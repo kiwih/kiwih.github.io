@@ -5,7 +5,7 @@ subtitle: Can we emulate a PIC16F core using an FPGA?
 gh-repo: kiwih/pic16f-antastic
 gh-badge: [star, fork, follow]
 #cover-img: /assets/img/path.jpg
-tags: [fpga]
+tags: [reverse-engineering, fpga, verilog]
 ---
 
 In this project I set out to create a  cycle-accurate FPGA-ready clone of the picmicro-midrange core, i.e. it is a PIC on an FPGA!

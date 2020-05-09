@@ -5,7 +5,7 @@ subtitle: For use with FatFS!
 gh-repo: kiwih/cubemx-mmc-sd-card
 gh-badge: [star, fork, follow]
 #cover-img: /assets/img/path.jpg
-tags: [embedded]
+tags: [stm32, c]
 ---
 
 The first time that I tried to get an SD card working with CubeMX I found a most interesting affair - not particularly complicated, but definitely a little fiddly. 

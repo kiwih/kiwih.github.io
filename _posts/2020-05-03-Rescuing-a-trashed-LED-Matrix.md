@@ -3,8 +3,9 @@ layout: post
 title: Rescuing a trashed LED Matrix
 subtitle: Reverse engineering a simple embedded system!
 gh-repo: kiwih/LedMatrix
+share-img: assets/img/ledmatrix/first-front.jpg
 gh-badge: [star, fork, follow]
-tags: [embedded]
+tags: [reverse-engineering, avr, c]
 ---
 
 I was cycling through a light industrial area in Auckland City when I came across a rubbish bin awaiting pickup on the side of the road. 
