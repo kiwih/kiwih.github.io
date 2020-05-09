@@ -24,8 +24,9 @@ Debugging for me in the past has been through the nightmare-inducing (but indisp
 ## Is this product placement / is this an advertisment?
 
 No, but I wish it was! How does one get into that gig?
-Anyway, I'm writing about ST offerings since I currently only own three ARM-based development boards, and the ST ones are a little more accessible.
-The other is the intelFPGA DE10 Standard, which I absolutely will do some blogging on in future because it's _freaking awesome_.
+Anyway, I'm writing about ST offerings since I currently only own three ARM-based development boards.
+Two of them are made by ST, are quite cheap, and are reasonably friendly to hobbyists and beginners. 
+My other development board is the Terasic DE10-Standard, which is none of those things, but which I absolutely will do some blogging on in future because it's _freaking awesome_.
 
 # Getting started
 
