@@ -5,7 +5,7 @@ subtitle: Enabling data transfer from 'scope to PC
 share-img: assets/img/agilent-rs232/share.png
 gh-repo: kiwih/agilent-rs232
 gh-badge: [star, fork, follow]
-tags: [oscilloscope, tooling, python]
+tags: [walkthrough, oscilloscope, tooling, python]
 ---
 
 Recently I acquired an older Agilent 54621A oscilloscope for my at-home workstation, and yes, that is a floppy drive on the front.
