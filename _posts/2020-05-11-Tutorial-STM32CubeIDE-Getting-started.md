@@ -425,7 +425,7 @@ To simply observe the end result, we launch the program using the Debug mode, wi
 
 Firstly, you'll see STM32CubeIDE change into its _debug_ perspective. You may get a popup asking you about this. 
 
-You'll notice that the dev kit in front of you has a continuously blinking LED light, and that the user LED isn't blinking yet. 
+You'll notice that the dev kit in front of you has the communication LED blinking continously, but that the user LED isn't blinking yet. 
 This is because the program is not actually running yet.
 In order to run the program, we need to press the 'Resume' key, which will get us started: (the resume key, as well as the other debug control keys, will have appeared due to the _debug_ perspective activating).
 
