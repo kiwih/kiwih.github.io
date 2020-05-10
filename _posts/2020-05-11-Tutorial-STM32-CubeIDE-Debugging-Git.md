@@ -59,7 +59,7 @@ My first impressions are very positive - ST have provided binaries for every pla
 Anyway, here's the steps, I'm sure I don't need to go into detail here:
 1. Download the correct version for your operating system (I grabbed the Debian bundle since I'm running an Ubuntu system)
 2. Extract the installer
-3. Install with adminstrator priveliges 
+3. Install with adminstrator privileges 
 4. Run
 
 (I trust it's as easy as this to install on Windows, but who knows?)
@@ -220,18 +220,420 @@ We're going to change the overall loop to:
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    //Here's my new code that I've added to toggle the Green LED (LD2)
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    HAL_Sleep(1000);
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
 ```
-(Yes, indentation by the autogenerator is two spaces. You get used to it.)
+Note the following:
+* Indentation by the code generator is 2 spaces per level (It's not my favourite, but you do get used to it)
+* I've put my code only inside section 3
+* Under the CubeMX view, the Led GPIO pin was named LD2 - observe how a name has automatically been generated for both the Pin and the Port
+* I've used two HAL functions, one to toggle a GPIO pin, and one to cause a delay of 1000 milliseconds.
 
-# Compiling the project
+Alright! This tiny project is all we needed to blink that on-board LED at around once per second. What's next?
+
+# Compiling the project and downloading it to the board
+
+STM32CubeIDE actually makes it pretty easy to compile our work and get it onto the STM32 chip. 
+We only need to tell it what we want to do once, right at the start, and every subsequent time it will copy what we asked.
+The first step is to produce the first version of the compiled `.elf` (a binary version of our code).
+We need this `.elf` so that we can point the download tool to it.
+
+To generate the `.elf`, we need to do a build.
+This is as easy as pressing the `build` button on the toolbar:
+
+![build button]({{ 'assets/img/cubeide-intro/build.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now, build information is presented in the console at the bottom of the screen:
+
+![build console]({{ 'assets/img/cubeide-intro/build-console.png' | relative_url }}){: .mx-auto.d-block :}
+
+Excellent.
+
+Now what we want to do is send this compiled binary onto the STM32 microcontroller. 
+
+Let's plug in the dev kit:
+
+![plugged in]({{ 'assets/img/cubeide-intro/power.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+The Red power LED (to the left of the blue switch) is lit, as is the larger communication LED (by the USB cable). 
+Not much else is happening - that's fine though, we'll soon get a bit more going.
+
+Inside STM32CubeIDE, select the run button:
+
+![plugged in]({{ 'assets/img/cubeide-intro/run.png' | relative_url }}){: .mx-auto.d-block :}
+
+This will open the Run dialog (as it's the first time we've _run_ it).
+The settings we choose now will be saved as a _run configuration_ which we can re-use or edit later.
+
+![run window]({{ 'assets/img/cubeide-intro/run-window.png' | relative_url }}){: .mx-auto.d-block :}
+
+Fortunately, the default settings (at least on Ubuntu) are perfect for this tutorial, so we don't need to change anything. 
+Feel free to take a look under the other tabs (the debugger one is interesting - note how it expects to be using the SWD interface, which was some of the pins that were set by default under the CubeMX project when we first created a project for our board).
+
+Simply press Apply and then OK and the download will proceed.
+
+The Console will now fill with some interesting text:
+
+```
+STMicroelectronics ST-LINK GDB server. Version 5.5.0
+Copyright (c) 2019, STMicroelectronics. All rights reserved.
+
+Starting server with the following options:
+        Persistent Mode            : Disabled
+        Logging Level              : 1
+        Listen Port Number         : 61234
+        Status Refresh Delay       : 15s
+        Verbose Mode               : Disabled
+        SWD Debug                  : Enabled
+        InitWhile                  : Enabled
+
+Waiting for debugger connection...
+Debugger connected
+      -------------------------------------------------------------------
+                        STM32CubeProgrammer v2.4.0                  
+      -------------------------------------------------------------------
+
+ST-LINK SN  : 0665FF544854677567204528
+ST-LINK FW  : V2J36M26
+Voltage     : 3.28V
+SWD freq    : 4000 KHz
+Connect mode: Under Reset
+Reset mode  : Hardware reset
+Device ID   : 0x446
+Device name : STM32F302xE/F303xE/F398xx
+Flash size  : 512 KBytes
+Device type : MCU
+Device CPU  : Cortex-M4
+
+Memory Programming ...
+Opening and parsing file: ST-LINK_GDB_server_WzeTJx.srec
+  File          : ST-LINK_GDB_server_WzeTJx.srec
+  Size          : 11032 Bytes
+  Address       : 0x08000000 
+
+Erasing memory corresponding to segment 0:
+Erasing internal memory sectors [0 5]
+Download in Progress:
+
+File download complete
+Time elapsed during download operation: 00:00:00.793
+
+Verifying ...
+
+Download verified successfully 
+
+Debugger connection lost.
+Shutting down...
+```
+
+Interestingly, I didn't get the option to choose a board or USB port or anything during this process, it all just happened automagically, so I'm not sure what would happen if you had multiple ST dev boards / ST-LINK programmers connected all at the same time.
+
+At any rate, my dev kit's communication LED lit up during this time, and after that it seems that the board is running the program!
+
+<video width='100%' controls>
+  <source src="{{ '/assets/vid/cubeide-intro/blink.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+(Yes, I went to the effort of recording, editing, and compressing a 2 second video of a blinking LED).
+
+It really is as easy as that - you've got everything set up now. 
+Any new code from here, you simply just need to hit the `run` button - it will compile it for you automatically.
 
 # Debugging execution
 
-# The virtual COM port
+I've worked with a lot of different engineers over the years, and it is often the case that _proper use of software debugging tools_ is simply not something that is well respected and/or applied. 
+I've noticed this especially with engineers that focus on the electrical side of systems. 
+The same folk that won't hesitate to pull out oscilloscopes, logic analyzers, textbooks, and horrifying math equations for testing and evaluating intermittent hardware faults in the electronics world simply don't think about how there are similar sets of tools for use when testing _software_ faults. 
+Breakpoints, watch lists, and trace analyses are your friend. 
 
-# 
+So, if your usual approach to debugging is simply liberal use of `printf` over a UART, then hopefully this section will introduce some new tools and concepts for you!
+
+_Note: You may need to enable debugging via your CubeMX config. I had it enabled already since it's included in the default configuration for my development board. If you need to enable it, do this in the CubeMX view:_
+
+![enable debug]({{ 'assets/img/cubeide-intro/enable_debug.png' | relative_url }}){: .mx-auto.d-block :}
+
+_Save your config using `File>Save` and regenerate the code._
+
+At the moment, there's nothing really worth debugging yet. Let's add something! Let's calculate some prime numbers!
+
+I'm going to add a few snippets of code to a few of those USER code blocks in `main.c`, as detailed:
+```c
+// . . .
+
+/* USER CODE BEGIN Includes */
+#include <stdbool.h>
+/* USER CODE END Includes */
+
+// . . .
+
+/* USER CODE BEGIN PD */
+#define PRIMES_LEN 62
+/* USER CODE END PD */
+
+// . . . 
+
+/* USER CODE BEGIN PV */
+uint16_t primes[PRIMES_LEN] = {0};
+/* USER CODE END PV */
+
+// . . . 
+
+/* USER CODE BEGIN 0 */
+
+//check if a number is prime
+bool is_prime(uint16_t v) {
+  for(uint16_t i=2; i<(v/2 + 1); i++) {
+    if(v % i == 0) return false;
+  }
+  return true;
+}
+/* USER CODE END 0 */
+
+// . . . (inside int main())
+
+  /* USER CODE BEGIN 2 */
+
+  //calculate a list of primes:
+  uint16_t prime_index = 0;
+
+  for(uint16_t i = 2; i < 300; i++) {
+    if(is_prime(i)) {
+      primes[prime_index] = i;
+      prime_index++;
+    }
+  }
+
+  /* USER CODE END 2 */
+```
+
+Okay! If we compile and execute this, we won't observe any changes (except for maybe the _slightest_ of delays before the LED starts blinking the first time).
+So how do we know if the list of primes is correct? 
+
+Well, how about we just ask the debugger? Let's give it a go!
+
+Let's first look at the end result, and then look at observing the looping calculation using a breakpoint.
+
+## Intro to Debug mode, resume, suspend, and watch variables
+
+To simply observe the end result, we launch the program using the Debug mode, with the `Debug` button.
+
+![debug button]({{ 'assets/img/cubeide-intro/debug.png' | relative_url }}){: .mx-auto.d-block :}
+
+Firstly, you'll see STM32CubeIDE change into its _debug_ perspective. You may get a popup asking you about this. 
+
+You'll notice that the dev kit in front of you has a continuously blinking LED light, and that the user LED isn't blinking yet. 
+This is because the program is not actually running yet.
+In order to run the program, we need to press the 'Resume' key, which will get us started: (the resume key, as well as the other debug control keys, will have appeared due to the _debug_ perspective activating).
+
+![resume button]({{ 'assets/img/cubeide-intro/resume.png' | relative_url }}){: .mx-auto.d-block :}
+
+Once you notice the dev board's LED light is blinking, pause the execution by pressing the suspend key
+
+![suspend button]({{ 'assets/img/cubeide-intro/suspend.png' | relative_url }}){: .mx-auto.d-block :}
+
+You'll notice that the IDE immediately throws you somewhere in the C code for your project - almost certainly in somewhere to do with the HAL_Delay function.
+That's where your program was when you hit suspend! 
+
+We can get back home by going to the left Debug panel and selecting `main()`. 
+
+![suspended info]({{ 'assets/img/cubeide-intro/suspended.png' | relative_url }}){: .mx-auto.d-block :}
+
+Note that the IDE highlights the function that is currently being executed (2) as well as presents a list of variables in the current scope (3).
+
+We can also examine the contents of our global variable by double clicking it:
+
+![suspended info primes]({{ 'assets/img/cubeide-intro/double-click-primes.png' | relative_url }}){: .mx-auto.d-block :}
+
+Or in a more convenient manner (since this is a big array) by right clicking on the variable `primes` and selecting `Add Watch Expression` (and then pressing OK)
+
+![suspended info add watch]({{ 'assets/img/cubeide-intro/add-watch-expression.png' | relative_url }}){: .mx-auto.d-block :}
+
+That then adds it to the `Expressions` menu on the right (I've expanded it for this screenshot):
+
+![suspended info watch expression]({{ 'assets/img/cubeide-intro/watch-expressions.png' | relative_url }}){: .mx-auto.d-block :}
+
+That's really cool! Press the Red Stop button now in the top menu, and we'll have a go at watching execution of the prime calculation loop.
+
+## Breakpoints
+
+In addition to running and suspending execution, we can also ask the program to suspend at a point of our choosing.
+This is known as _creating a breakpoint_.
+
+In STM32CubeIDE you do this by double clicking on the red bar next to the line numbers, which will cause a small blue breakpoint indicator dot to appear.
+
+![add a breakpoint]({{ 'assets/img/cubeide-intro/add-breakpoint.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now, without changing anything else, launch the debug mode again.
+
+This time, when you hit resume, you'll notice that the program executes _and then automatically halts_ when it reaches your breakpoint.
+
+![stopped at breakpoint]({{ 'assets/img/cubeide-intro/all-zeros.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now if I press suspend again, it will loop and stop at this same function. And, oh, what's this?
+
+![stopped at breakpoint 2]({{ 'assets/img/cubeide-intro/all-zeros-except-0.png' | relative_url }}){: .mx-auto.d-block :}
+
+The first index of primes has changed, and it's highlighted the changed variable!
+
+Let's hit resume again:
+
+![stopped at breakpoint 3]({{ 'assets/img/cubeide-intro/all-zeros-except-0-1.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now the second index of primes has changed, and the changed variable is highlighted once more!
+
+You can keep pressing the resume button and you'll see it slowly calculate the array.
+
+Let's now quit the debugger and move on. You can delete the breakpoint again by double clicking the blue dot. 
+Note that if you right click on the red column, you can also toggle and create breakpoints this way. 
+This also brings up advanced breakpoint options, including breakpoint conditions and breakpoint types.
+
+## The debugger SWO
+
+If properly configured, you can output arbitrary strings directly to the debugger via the programmer, rather than sending them via any other peripherals. 
+It's a bit like a virtual UART that you can send data to.
+
+This is a little involved to set up, _and it can be worth simply using a UART if you must send out strings of characters to help your debugging_, but I'll step through the basics here using STM32CubeIDE.
+
+First, we must configure the reception clock rate. 
+We do this via the debug configuration menu.
+
+Press this:
+
+![debug configuration]({{ 'assets/img/cubeide-intro/debug-configurations.png' | relative_url }}){: .mx-auto.d-block :}
+
+Go to the Debugger tab, Enable SWV (Serial Wire Viewer), then change your clock rate to the FCLK from earlier (remember when we chose the clock rate for all of our components?)
+
+You may leave the SWO Clock drop down set to its maximum.
+
+![set swo fclk]({{ 'assets/img/cubeide-intro/swo-speed.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now press Apply/Close.
+
+Let's add a test to send some characters. In the main loop, add the following:
+
+```c
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_Delay(1000);
+    ITM_SendChar('!');
+  }
+  /* USER CODE END 3 */
+```
+
+`ITM_SendChar` is a special function which sends a character to the debugger's serial viewer. You shouldn't need to `#include` anything new or special to use this.
+
+You can now launch the debug session as before. But, before you press `Resume` to get it started, we need to enable a few more debugging options.
+
+First, open the ITM data console through the `Window` menu:
+
+![open itm console]({{ 'assets/img/cubeide-intro/itm-data-console.png' | relative_url }}){: .mx-auto.d-block :}
+
+Enable ITM stimulus port 0:
+
+![enable itm stim 0]({{ 'assets/img/cubeide-intro/itm-stim-port-0.png' | relative_url }}){: .mx-auto.d-block :}
+
+Press OK.
+
+Port 0 will appear in the console view. Now press `Start`
+
+![start itm trace]({{ 'assets/img/cubeide-intro/itm-start-trace.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now, and only now, can you press Resume. You'll notice your Port 0 terminal slowly start filling with exclamation marks (since that's the character we're sending!)
+
+![an itm trace capture]({{ 'assets/img/cubeide-intro/itm-start-trace.png' | relative_url }}){: .mx-auto.d-block :}
+
+As you can imagine, this is pretty handy when your design might not have a free UART for debugging.
+
+Without too much difficulty, we can also spin up a custom `printf` function for debugging. There's a few options for this, but my preferred approach is to actually create my own `debug_printf` function, like so:
+
+Adding more to `main.c`, as detailed:
+```c
+// . . .
+
+/* USER CODE BEGIN Includes */
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdarg.h>
+/* USER CODE END Includes */
+
+// . . .
+
+/* USER CODE BEGIN PD */
+#define PRIMES_LEN 62
+/* USER CODE END PD */
+
+// . . . 
+
+/* USER CODE BEGIN PV */
+uint16_t primes[PRIMES_LEN] = {0};
+/* USER CODE END PV */
+
+// . . . 
+
+/* USER CODE BEGIN 0 */
+
+//check if a number is prime
+bool is_prime(uint16_t v) {
+  // . . .
+}
+
+//debug_printf_256 sends a max of 256 characters to the ITM SWO trace debugger
+//It uses a _variable length argument_, same as normal printf
+//Indeed, just call this function as if it was printf, and you'll get the behaviour you expect
+//I also like doing it this way since I can change the definition of the function as needed
+void debug_printf_256(const char *fmt, ...) { 
+  char buffer[256];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buffer, sizeof(buffer), fmt, args);
+  va_end(args);
+
+  uint16_t i = 0;
+  while(buffer[i] != '\0') {
+    ITM_SendChar(buffer[i]);
+    i++;
+  }
+
+}
+/* USER CODE END 0 */
+
+// . . . (inside int main())
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  uint32_t count = 0;
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_Delay(1000);
+    debug_printf_256("Hello debugger, this is iteration %d\r\n", count);
+    count++;
+  }
+  /* USER CODE END 3 */
+```
+
+Now we save, build, and `debug` that. Remember to `Start` the ITM trace before pressing `Resume`!
+
+![another itm trace capture]({{ 'assets/img/cubeide-intro/itm-iterations.png' | relative_url }}){: .mx-auto.d-block :}
+
+# The ST-LINK COM port
+
+The very last thing I want to talk about today is specific to the nucleo board that I am using.
+
+* It includes a COM port
+* this works on windows and linux
