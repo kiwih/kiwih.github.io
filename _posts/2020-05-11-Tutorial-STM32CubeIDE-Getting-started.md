@@ -3,9 +3,7 @@ layout: post
 title: 'Tutorial: Getting started with an ST development board using STM32CubeIDE'
 subtitle: Project initialisation, intro to debugging, and using the virtual COM port
 share-img: assets/img/cubeide-intro/boards.jpg
-gh-repo: kiwih/stm32cubeide-nucleo-f303re-hello
-gh-badge: [star, fork, follow]
-tags: [tutorial, stm32, STM32CubeIDE, tooling, c]
+tags: [tutorial, stm32, STM32CubeIDE, tooling, debugging, c]
 ---
 
 Getting started with an 32-bit ARM-based microcontroller is always a little daunting. 
@@ -14,11 +12,11 @@ Everyone seems to have their own opinion on what is best to use, and debates bet
 It can be quite confusing to work out exactly how one should get going - I certainly remember it being so, at any rate!
 
 Well, in this tutorial I'm aiming to de-mystify things a little, targeting the very challenges that I myself faced when I first got started.
-I'll walk through project initialisation, introducing the peripheral and clock configuration options, and demonstrate the ST CubeMX code generator traps.
+I'll walk through project initialisation, introducing the peripheral and clock configuration options, and illustrate the ST CubeMX code generator traps.
 I'll then show off debugging, something that everybody should know a little about (and no, I'm not talking about liberal use of `printf`).
-Finally, I'll introduce how you can integrate Git into your workflow, for better project management and version control of your software.
+Finally, I'll demonstrate the ST-Link's integrated Virtual COM Port, which is a handy feature built in to my development kit.
 
-While my normal ARM programming environment is currently based on Visual Studio Code, for this tutorial blogpost I'm actually going to use the STM32CubeIDE, as it's free, it only semi-recently came out, and I'm interested in its capabilities --- especially with the debugger.
+While my normal ARM programming environment is currently based on Visual Studio Code, for this tutorial blogpost I'm actually going to use the STM32CubeIDE, as it's free, it was only semi-recently released, and I'm interested in its capabilities --- especially with the debugger.
 Debugging for me in the past has been through the nightmare-inducing (but indisputably powerful) command line interface for OpenOCD.
 
 ## Hey, is this blog post an advertisment?
@@ -589,11 +587,11 @@ bool is_prime(uint16_t v) {
   // . . .
 }
 
-//debug_printf_256 sends a max of 256 characters to the ITM SWO trace debugger
+//debug_printf sends a max of 256 characters to the ITM SWO trace debugger
 //It uses a _variable length argument_, same as normal printf
 //Indeed, just call this function as if it was printf, and you'll get the behaviour you expect
 //I also like doing it this way since I can change the definition of the function as needed
-void debug_printf_256(const char *fmt, ...) { 
+void debug_printf(const char *fmt, ...) { 
   char buffer[256];
   va_list args;
   va_start(args, fmt);
@@ -621,7 +619,7 @@ void debug_printf_256(const char *fmt, ...) {
     /* USER CODE BEGIN 3 */
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     HAL_Delay(1000);
-    debug_printf_256("Hello debugger, this is iteration %d\r\n", count);
+    debug_printf("Hello debugger, this is iteration %d\r\n", count);
     count++;
   }
   /* USER CODE END 3 */
@@ -631,9 +629,82 @@ Now we save, build, and `debug` that. Remember to `Start` the ITM trace before p
 
 ![another itm trace capture]({{ 'assets/img/cubeide-intro/itm-iterations.png' | relative_url }}){: .mx-auto.d-block :}
 
-# The ST-LINK COM port
+# The ST-Link Virtual COM Port
 
-The very last thing I want to talk about today is specific to the nucleo board that I am using.
+The very last thing I want to talk about today is a neat feature included in my Nucleo board.
+The inbuilt ST-Link v2.1 interface that we've been using for programming and debugging _also_ includes a _virtual COM port_.
+As of the time of this tutorial, the COM port uses drivers which are included natively in most operating systems (including Windows and Ubuntu Linux).
 
-* It includes a COM port
-* this works on windows and linux
+Indeed, if I run `dmesg | grep tty` in my terminal, I can see it has been made available as `/dev/ttyACM0` thus:
+
+```
+$ dmesg | grep tty
+[30318.354183] cdc_acm 3-10.4:1.2: ttyACM0: USB ACM device
+```
+
+This is really handy for your user applications, as this virtual COM port is wired directly onto one of the USART peripherals on the nucleo board!
+Recall from the CubeMX view that pins _PA2_ and _PA3_ were automatically configured as a USART for us.
+
+A quick sanity check to make sure this makes sense by looking on the schematic:
+![usart pins schematic]({{ 'assets/img/cubeide-intro/usart-pins.png' | relative_url }}){: .mx-auto.d-block :}
+
+Sure looks like they're connected to a USART (and indeed, tracing it through the rest of the schematic shows them connected to the ST-Link V2 programmer). 
+So let's quickly jump back into the CubeMX view and see how the port was set up:
+
+![usart cubemx config]({{ 'assets/img/cubeide-intro/cubemx-usart.png' | relative_url }}){: .mx-auto.d-block :}
+
+It's configured as asynchronous, at 38400 baud, 8 data bits, no parity, 1 stop bit.
+
+We could change these settings now if we wanted to. The virtual COM port works the same as any other USB to serial adapter, and so any baud rate and config can work with it. For now I'm happy with the defaults though.
+
+Let's have a go at sending some characters to it.
+
+```c
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  uint32_t count = 0;
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_Delay(1000);
+    debug_printf("Hello debugger, this is iteration %d\r\n", count);
+    HAL_UART_Transmit(&huart2, (uint8_t*)"Hello world, this is a UART\r\n", 30, 1000); //30 is the number of characters, 1000 milliseconds timeout
+    count++;
+  }
+  /* USER CODE END 3 */
+```
+
+We now build and download that, before running Minicom:
+
+```
+$ minicom -b 38400 -D /dev/ttyACM0
+```
+
+And here's the output:
+
+![minicom output]({{ 'assets/img/cubeide-intro/minicom.png' | relative_url }}){: .mx-auto.d-block :}
+
+If we wanted, we could now make a `usart_printf` like our `debug_printf` from earlier, but I'll leave that as an exercise for the reader.
+
+# Conclusions
+
+Hopefully across this tutorial you've managed to gain some familiarity with the tools and environment available for your STM32-based device.
+My intention was to show you a little bit of everything! 
+Now that you know how to make a project and get code working, why not try out some of the features of your microcontroller?
+* Have a go at reading the input push button
+* Try out timer interrupts or timer PWM to get a true 1 second LED blink
+* Have a go at using USART with DMA (direct memory access)
+
+In addition, practice your C a little more:
+* Split functionality out into multiple files so you don't need to worry about the code autogenerator deleting things
+* Practice string manipulation (maybe make a basic chatbot which sends and receives via UART?)
+* Try out pointers to functions (rather than pointers to variables) and have a google of _dependency injection_
+
+I for one am pleasantly surprised at the capabilities and stability of STM32CubeIDE running on Ubuntu. 
+While creating this tutorial I found that it ran smoothly and every feature that I wanted was present. 
+I'm pleased with the capabilities of the integrated debugger - it was a damn sight easier than my previous method, that's for sure.
+
+If you made it this far, thanks for reading, and hopefully this blogpost was at least somewhat helpful and interesting!
