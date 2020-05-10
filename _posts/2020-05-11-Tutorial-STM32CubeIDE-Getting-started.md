@@ -431,7 +431,7 @@ In order to run the program, we need to press the 'Resume' key, which will get u
 
 ![resume button]({{ 'assets/img/cubeide-intro/resume.png' | relative_url }}){: .mx-auto.d-block :}
 
-Once you notice the dev board's LED light is blinking, pause the execution by pressing the suspend key
+Once you notice the dev board's LED light is blinking, pause the execution by pressing the suspend key:
 
 ![suspend button]({{ 'assets/img/cubeide-intro/suspend.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -538,19 +538,23 @@ First, open the ITM data console through the `Window` menu:
 
 ![open itm console]({{ 'assets/img/cubeide-intro/itm-data-console.png' | relative_url }}){: .mx-auto.d-block :}
 
+This will bring up the ITM data console window. Now, enter the configuration menu:
+
+![enable itm stim 0]({{ 'assets/img/cubeide-intro/itm-config.png' | relative_url }}){: .mx-auto.d-block :}
+
 Enable ITM stimulus port 0:
 
 ![enable itm stim 0]({{ 'assets/img/cubeide-intro/itm-stim-port-0.png' | relative_url }}){: .mx-auto.d-block :}
 
 Press OK.
 
-Port 0 will appear in the console view. Now press `Start`
+Port 0 will appear in the console view. Now press `Start` - this actually contacts your microcontroller and adjusts some registers internally to enable this mechanism:
 
 ![start itm trace]({{ 'assets/img/cubeide-intro/itm-start-trace.png' | relative_url }}){: .mx-auto.d-block :}
 
 Now, and only now, can you press Resume. You'll notice your Port 0 terminal slowly start filling with exclamation marks (since that's the character we're sending!)
 
-![an itm trace capture]({{ 'assets/img/cubeide-intro/itm-start-trace.png' | relative_url }}){: .mx-auto.d-block :}
+![an itm trace capture]({{ 'assets/img/cubeide-intro/itm-capture.png' | relative_url }}){: .mx-auto.d-block :}
 
 As you can imagine, this is pretty handy when your design might not have a free UART for debugging.
 
