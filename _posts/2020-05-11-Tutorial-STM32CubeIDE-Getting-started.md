@@ -345,9 +345,9 @@ Any new code from here, you simply just need to hit the `run` button - it will c
 
 # Debugging execution
 
-I've worked with a lot of different engineers over the years, and it is often the case that _proper use of software debugging tools_ is simply not something that is well respected and/or applied. 
-I've noticed this especially with engineers that focus on the electrical side of systems. 
-The same folk that won't hesitate to pull out oscilloscopes, logic analyzers, textbooks, and horrifying math equations for testing and evaluating intermittent hardware faults in the electronics world simply don't think about how there are similar sets of tools for use when testing _software_ faults. 
+I've worked with a lot of different engineers over the years, and it is often the case that _proper use of software debugging tools_ is more rare than it should be.
+Perhaps this is because there is a lack of awareness of the tools, perhaps it is because the tools can be fiercely difficult to use, perhaps it is because they are not properly taught in our apprenticeships and academic institutions.
+Still, it's often the case that embedded engineers are comfortable with using oscilloscopes, logic analyzers, textbooks, and horrifying math equations for testing and evaluating intermittent hardware faults yet they are often disregarding the likewise extensive arsenal of tools for use when understanding _software_ faults. 
 Breakpoints, watch lists, and trace analyses are your friend. 
 
 So, if your usual approach to debugging is simply liberal use of `printf` over a UART, then hopefully this section will introduce some new tools and concepts for you!
