@@ -1,11 +1,11 @@
 ---
 layout: post
 title: 'Tutorial: Getting started with an ST development board using STM32CubeIDE'
-subtitle: Project initialisation, intro to debugging, and getting going with Git
+subtitle: Project initialisation, intro to debugging, and using the virtual COM port
 share-img: assets/img/cubeide-intro/boards.jpg
 gh-repo: kiwih/stm32cubeide-nucleo-f303re-hello
 gh-badge: [star, fork, follow]
-tags: [tutorial, stm32, STM32CubeIDE, tooling, c, git]
+tags: [tutorial, stm32, STM32CubeIDE, tooling, c]
 ---
 
 Getting started with an 32-bit ARM-based microcontroller is always a little daunting. 
