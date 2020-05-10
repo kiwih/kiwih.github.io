@@ -354,7 +354,7 @@ So, if your usual approach to debugging is simply liberal use of `printf` over a
 
 _Note: You may need to enable debugging via your CubeMX config. I had it enabled already since it's included in the default configuration for my development board. If you need to enable it, do this in the CubeMX view:_
 
-![enable debug]({{ 'assets/img/cubeide-intro/enable_debug.png' | relative_url }}){: .mx-auto.d-block :}
+![enable debug]({{ 'assets/img/cubeide-intro/enable-debug.png' | relative_url }}){: .mx-auto.d-block :}
 
 _Save your config using `File>Save` and regenerate the code._
 
