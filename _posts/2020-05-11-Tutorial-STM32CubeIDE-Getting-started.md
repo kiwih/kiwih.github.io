@@ -13,7 +13,7 @@ It can be quite confusing to work out exactly how one should get going - I certa
 
 Well, in this tutorial I'm aiming to de-mystify things a little, targeting the very challenges that I myself faced when I first got started.
 I'll walk through project initialisation, introducing the peripheral and clock configuration options, and illustrate the ST CubeMX code generator traps.
-I'll then show off debugging, something that everybody should know a little about (and no, I'm not talking about liberal use of `printf`).
+I'll then show off tools for debugging, something that everybody should know a little about.
 Finally, I'll demonstrate the ST-Link's integrated Virtual COM Port, which is a handy feature built in to my development kit.
 
 While my normal ARM programming environment is currently based on Visual Studio Code, for this tutorial blogpost I'm actually going to use the STM32CubeIDE, as it's free, it was only semi-recently released, and I'm interested in its capabilities --- especially with the debugger.
@@ -345,12 +345,24 @@ Any new code from here, you simply just need to hit the `run` button - it will c
 
 # Debugging execution
 
-I've worked with a lot of different engineers over the years, and it is often the case that _proper use of software debugging tools_ is more rare than it should be.
-Perhaps this is because there is a lack of awareness of the tools, perhaps it is because the tools can be fiercely difficult to use, perhaps it is because they are not properly taught in our apprenticeships and academic institutions.
-Still, it's often the case that embedded engineers are comfortable with using oscilloscopes, logic analyzers, textbooks, and horrifying math equations for testing and evaluating intermittent hardware faults yet they are often disregarding the likewise extensive arsenal of tools for use when understanding _software_ faults. 
-Breakpoints, watch lists, and trace analyses are your friend. 
+Tooling for analysing and debugging embedded systems largely comes in two main categories.
+The first of these is in the hardware domain: tools like oscilloscopes, logic analysers, datasheets, and horrifying math equations.
+These can all work together to help you benchmark your systems and solve issues with your designs.
+These tools are frequently used.
 
-So, if your usual approach to debugging is simply liberal use of `printf` over a UART, then hopefully this section will introduce some new tools and concepts for you!
+The second category of tools focuses on _software_ debugging, with breakpoints, watch lists, trace analysers, and so forth.
+These all work together to help you diagnose and understand what your embedded software is doing.
+Yet, it has been my experience that these formal tools are much less frequently used - even though there is a trend throughout industry to integrate more and more software into our designs.
+Instead, designers rely on simpler 'tried-and-true' approaches such as blinking LEDs or outputting debug messages to UART peripherals.
+Now, it's not to say that these techniques don't work - they do, given time! - but they can often get in your way and be a major barrier to understanding when trying to diagnose why something _is_ or _is not_ working.
+
+It's hard to say why the proper tooling for software debugging gets less attention than the proper tooling for hardware debugging. 
+Perhaps it is because there is a lack of awareness of the tools and their capabilities. 
+Perhaps they are not properly taught in our apprenticeships and academic institutions.
+Perhaps it is because historically these tools have been fiercely difficult to use with high barriers to entry.
+
+At any rate, the state of the art these days for software debugging tools seems to be pretty good, with reasonably well made and accessible tooling available for us to use.
+STM32CubeIDE seems to be no exception, and in this section, I aim to introduce you to some of the things we can do with its integrated debugger.
 
 _Note: You may need to enable debugging via your CubeMX config. I had it enabled already since it's included in the default configuration for my development board. If you need to enable it, do this in the CubeMX view:_
 
@@ -358,9 +370,9 @@ _Note: You may need to enable debugging via your CubeMX config. I had it enabled
 
 _Save your config using `File>Save` and regenerate the code._
 
-At the moment, there's nothing really worth debugging yet. Let's add something! Let's calculate some prime numbers!
+Let's have a play by debugging our code! But first, let's add something _to_ debug, since there's not much going on here. I choose to add a few snippets of code to calculate some prime numbers!
 
-I'm going to add a few snippets of code to a few of those USER code blocks in `main.c`, as detailed:
+Thus, I'm going to add a few lines of code to a few of those USER code blocks in `main.c`, as detailed here:
 ```c
 // . . .
 
