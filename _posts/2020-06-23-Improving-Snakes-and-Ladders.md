@@ -6,7 +6,7 @@ share-img: /assets/img/taniwha-and-ladders/base-game.jpg
 tags: [gaming, homebrew, tabletop]
 ---
 
-I just moved to the USA, and as a leaving gift, a cousin gave a New Zealand themed version of the classic game Snakes and Ladders (the NZ theme being that this was *Taniwha* and Ladders, of course).
+I just moved to the USA, and as a leaving gift, a work colleague gave a New Zealand themed version of the classic game Snakes and Ladders (the NZ theme being that this was *Taniwha* and Ladders, of course).
 
 ![The Board]({{ 'assets/img/taniwha-and-ladders/base-game.jpg' | relative_url }}){: .mx-auto.d-block :}
 
