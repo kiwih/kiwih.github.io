@@ -10,7 +10,11 @@ I just moved to the USA, and as a leaving gift, a cousin gave a New Zealand them
 
 ![The Board]({{ 'assets/img/taniwha-and-ladders/base-game.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-Of course, we all know the rules of Snakes and Ladders (well - there's some debate around a few house rules), but in general, you roll a six sided die (also known as a d6), you move across the board, if you exactly land on the start of a ladder you go to its top, and if you exactly land on the mouth of a snake you go to the end of its tail. To win the game, you need to be the first person to reach the end tile. A typical house rule is that you must land on the end tile exactly - if you overshoot your roll (e.g. its 4 spaces away and you rolled a 5) you *bounce-back*, i.e. move 4 spaces forward and then 1 space back to make a total of 5.
+Of course, we all know the rules of Snakes and Ladders (well - there's some debate around a few house rules), but in general, you roll a six sided die (also known as a d6) and then move that number of spaces across the board. If you exactly land on the start of a ladder you go to its top, and if you exactly land on the mouth of a snake (or Taniwha) you go to the end of its tail. 
+
+To win the game, you need to be the first person to reach the end tile. 
+
+A typical house rule is that you must land on the end tile exactly - if you overshoot your roll (e.g. its 4 spaces away and you rolled a 5) you *bounce-back*, i.e. move 4 spaces forward and then 1 space back to make a total of 5. This bounce-back is depicted here:
 
 ![Bounce-back]({{ 'assets/img/taniwha-and-ladders/bounceback.jpg' | relative_url }}){: .mx-auto.d-block :}
 
