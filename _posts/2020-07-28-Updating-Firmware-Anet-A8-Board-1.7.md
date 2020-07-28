@@ -1,41 +1,55 @@
 ---
 layout: post
 title: 'Updating the Firmware on an Anet A8 (Mainboard Version 1.7)'
-subtitle: Steps for 2020
-#share-img: /assets/img/taniwha-and-ladders/base-game.jpg
-tags: [walkthrough]
+subtitle: The steps, in 2020
+share-img: /assets/img/anet-a8/the-printer.jpg
+tags: [walkthrough, tooling, 3dprinting, embedded]
 ---
 
 For the first time ever, I have a 3d printer! Well, it's not actually *mine*, but it's on my desk - it's mine to use (and abuse).
+I wanted to update the firmware on it, but was worried about bricking it. 
+This blogpost is about the procedure I went through to update it to Marlin 1.1.9.
+
+TL;DR: If you're just interested in the steps, scroll down to 'Updating the Firmware'.
+
+# Background on the Anet A8
+
+The Anet A8 is a relatively inexpensive 3d printer you can buy from e.g. [Amazon](https://amzn.to/305Kk4r).  
 
 ![The printer]({{ 'assets/img/anet-a8/the-printer.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-It came as a kitset from Amazon, and I had to assemble it myself. This wasn't too tricky, but ... (short story)
+It comes as a Kitset, which I had great fun unboxing...
+
+![Assembling the printer unboxing]({{ 'assets/img/anet-a8/unboxing.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+...and then assembling.
 
 ![Assembling the printer 1]({{ 'assets/img/anet-a8/assembly-1.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 ![Assembling the printer 2]({{ 'assets/img/anet-a8/assembly-2.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-![Assembling the printer 3]({{ 'assets/img/anet-a8/assembly-3.jpg' | relative_url }}){: .mx-auto.d-block :}
+Once finished, it was pretty easy getting started on the first print,
 
-Once finished, I needed to calibrate it, which was its own journey. (Couple of points, couple of pix of boats).
+![The first print]({{ 'assets/img/anet-a8/first-print.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-I had problems with stringing, but I got it to the point where I was happy enough.
+but it was pretty clear that I needed to calibrate it - just look at that stringing!
 
-For a task at work I now had to set to one of the goals of this 3d printer - being able to update the firmware, and that takes us to the meat of this walkthrough.
+I spent a lot of time with the calibration guides provided with the printer, changing extrusion speed/distance, printer temperature, movement acceleration, and so forth, but I only ever seemed to improve the print quality a little. Well, until I had a go at updating the firmware that is. Then, with absolutely no changes to the gcode between print 3 and print 4 (and a different dye in the filament) I managed to get a significant improvement!
+
+![4 boats]({{ 'assets/img/anet-a8/4-boats.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 # Updating the Firmware
 
-There are (link)plenty (link)of (link)tutorials (link)on (link)updating the (link)firmware for me to find, searching the internet in 2020. 
+There are (link)plenty (link)of (link)tutorials (link)on (link)updating the (link)firmware on an Anet A8 findable with google in 2020. 
 https://blog.thomasmarcussen.com/anet-a8-plus-upgrade-to-marlin-2-0-x/
 https://all3dp.com/2/anet-a8-firmware-which-to-choose-and-how-to-change-it/
 https://github.com/SkyNet3D/anet-board
 https://www.youtube.com/watch?v=ePgpzkjriso
 https://ktln2.org/2018/08/13/update-marlin-fw-for-anet/
 
-However, plenty of them leave open-ended questions around _'does this work with the 1.7 revision of the board?'_, or '_is this Github still maintained?'_
+However, most of them leave open-ended questions around _'does this work with the 1.7 revision of the board?'_, or '_is this Github still maintained in 2020?'_
 
-Other issues too:
+For instance, these are just a subset of the issues I found when checking the procedure would work:
 https://reprap.org/forum/read.php?415,861799
 https://www.thingiverse.com/groups/anet-a8-prusa-i3/forums/general/topic:35035
 https://reprap.org/forum/read.php?1,856698
@@ -45,7 +59,7 @@ https://www.reddit.com/r/AnetA8/comments/egwenl/flashing_marlin_issues_with_x_mi
 
 In the end, these were the steps:
 
-1. (Optional) Using Usbasp, back up the existing firmware
+1. (Optional) Using Usbasp, which you can buy e.g. from [Amazon](https://amzn.to/2X4I3EU), back up the existing firmware
 2. (Optional) Using Usbasp, burn a new bootloader (I didn't need to do this)
 3. Get Anet board definition from https://github.com/benlye/anet-board/raw/master/package_anet_board_index.json
 4. Download https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x and apply Anet-A8 configuration
@@ -53,10 +67,6 @@ In the end, these were the steps:
 6. Compile + Download firmware
 7. Recalibrate the z-heights (physical) on the board
 8. Print!
-
-# Improvements in quality
-
-Compare the two boaties
 
 # Conclusions
 
