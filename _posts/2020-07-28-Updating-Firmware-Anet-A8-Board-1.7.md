@@ -38,28 +38,28 @@ I spent a lot of time with the calibration guides provided with the printer, cha
 
 ![4 boats]({{ 'assets/img/anet-a8/4-boats.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-# Updating the Firmware
+# So many online resources
 
-There are (link)plenty (link)of (link)tutorials (link)on (link)updating the (link)firmware on an Anet A8 findable with google in 2020. 
-https://blog.thomasmarcussen.com/anet-a8-plus-upgrade-to-marlin-2-0-x/
-https://all3dp.com/2/anet-a8-firmware-which-to-choose-and-how-to-change-it/
-https://github.com/SkyNet3D/anet-board
-https://www.youtube.com/watch?v=ePgpzkjriso
-https://ktln2.org/2018/08/13/update-marlin-fw-for-anet/
+There are [plenty](https://blog.thomasmarcussen.com/anet-a8-plus-upgrade-to-marlin-2-0-x/) [of](https://all3dp.com/2/anet-a8-firmware-which-to-choose-and-how-to-change-it/) [resources](https://github.com/SkyNet3D/anet-board) [online](https://www.youtube.com/watch?v=ePgpzkjriso) [regarding](https://ktln2.org/2018/08/13/update-marlin-fw-for-anet/) [updating](https://www.thingiverse.com/groups/anet-a8-prusa-i3/forums/general/topic:28969) the firmware on an Anet A8 in 2020. 
 
 However, most of them leave open-ended questions around _'does this work with the 1.7 revision of the board?'_, or '_is this Github still maintained in 2020?'_
 
 For instance, these are just a subset of the issues I found when checking the procedure would work:
-https://reprap.org/forum/read.php?415,861799
-https://www.thingiverse.com/groups/anet-a8-prusa-i3/forums/general/topic:35035
-https://reprap.org/forum/read.php?1,856698
-https://github.community/t/flashing-marlin-2-0-bugfix-on-an-anet-a8-3d-printer/12682
-https://www.reddit.com/r/AnetA8/comments/egwenl/flashing_marlin_issues_with_x_min_pin_is_not/
+* [Problem with compilation](https://reprap.org/forum/read.php?415,861799)
+* [More problems with compilation](https://github.community/t/flashing-marlin-2-0-bugfix-on-an-anet-a8-3d-printer/12682)
+* [Yet more problems with compilation](https://www.reddit.com/r/AnetA8/comments/egwenl/flashing_marlin_issues_with_x_min_pin_is_not/)
+* [Issue: new firmware printing off center](https://www.thingiverse.com/groups/anet-a8-prusa-i3/forums/general/topic:35035)
+* [Problems with homing after updating](https://reprap.org/forum/read.php?1,856698)
 
+I started feeling the same way as [DarkTerritory, here](https://www.thingiverse.com/groups/anet-a8-prusa-i3/forums/general/topic:28969), who started a forum post in 2018 with _"K so I'm thinking abut trying to upgrade my old Anet A8 motherboard to Marlin. I have been looking around on the intertubes and now I'm more confused than ever. Everyone uses a different flavor of Marlin and no one does the update in the same way. Many also seem to leave out important steps."_
 
-In the end, these were the steps:
+In the end they did resolve their issue, but again left the steps largely as an exercise for the reader.
 
-1. (Optional) Using Usbasp, which you can buy e.g. from [Amazon](https://amzn.to/2X4I3EU), back up the existing firmware
+# Updating the firmware
+
+In the end, these were the steps that I performed.:
+
+1. (Optional) Using Usbasp, which you can buy e.g. from [Amazon](https://amzn.to/2X4I3EU), back up the existing firmware with (On Ubuntu) `sudo apt install gcc-avr avr-libc binutils-avr avrdude`, then `avrdude -c usbasp -p m1284p -U flash:r:aneta8-flash.bin:r`
 2. (Optional) Using Usbasp, burn a new bootloader (I didn't need to do this)
 3. Get Anet board definition from https://github.com/benlye/anet-board/raw/master/package_anet_board_index.json
 4. Download https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x and apply Anet-A8 configuration
