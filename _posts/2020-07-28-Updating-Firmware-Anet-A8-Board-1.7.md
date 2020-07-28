@@ -14,7 +14,7 @@ TL;DR: If you're just interested in the steps, scroll down to 'Updating the Firm
 
 # Background on the Anet A8
 
-The Anet A8 is a relatively inexpensive 3d printer you can buy from e.g. [Amazon](https://amzn.to/305Kk4r).  
+The Anet A8 is a relatively inexpensive 3d printer you can buy from e.g. [Amazon](https://amzn.to/305Kk4r) (Note: affiliate link).  
 
 ![The printer]({{ 'assets/img/anet-a8/the-printer.jpg' | relative_url }}){: .mx-auto.d-block :}
 
@@ -59,7 +59,7 @@ In the end they did resolve their issue, but again left the steps largely as an 
 
 In the end, these were the steps that I performed.:
 
-1. (Optional) Using Usbasp, which you can buy e.g. from [Amazon](https://amzn.to/2X4I3EU), back up the existing firmware with (On Ubuntu) `sudo apt install gcc-avr avr-libc binutils-avr avrdude`, then `avrdude -c usbasp -p m1284p -U flash:r:aneta8-flash.bin:r`
+1. (Optional) Using Usbasp, which you can buy e.g. from [Amazon](https://amzn.to/2X4I3EU) (Note: affiliate link), back up the existing firmware with (On Ubuntu) `sudo apt install gcc-avr avr-libc binutils-avr avrdude`, then `avrdude -c usbasp -p m1284p -U flash:r:aneta8-flash.bin:r`
 2. (Optional) Using Usbasp, burn a new bootloader (I didn't need to do this)
 3. Get Anet board definition from https://github.com/benlye/anet-board/raw/master/package_anet_board_index.json
 4. Download https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x and apply Anet-A8 configuration
