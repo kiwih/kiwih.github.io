@@ -1,7 +1,7 @@
 ---
 layout: post
-title: 'Updating the Firmware on an Anet A8 (Mainboard Version 1.7)'
-subtitle: The steps, in 2020
+title: 'Walkthrough: Updating the Firmware on an Anet A8 (Mainboard Version 1.7)'
+subtitle: Depicted in 2020
 share-img: /assets/img/anet-a8/the-printer.jpg
 tags: [walkthrough, tooling, 3dprinting, embedded]
 ---
