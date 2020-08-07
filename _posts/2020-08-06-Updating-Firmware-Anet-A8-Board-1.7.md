@@ -57,14 +57,18 @@ I started feeling the same way as [DarkTerritory, here](https://www.thingiverse.
 
 In the end they did resolve their issue, but again left the steps largely as an exercise for the reader.
 
-# (Optional) Backing up the original firmware
+So, I decided to tackle this - here's my walkthrough on updating the firmware on an Anet A8!
 
-If you think you might ever want to restore the original firmware, (or you need to flash a new Ubuntu bootloader for some reason), you'll need an external programmer for the Anet A8's mainboard.
+# (Optional) First step: Backing up the original firmware
+
+If you think you might ever want to restore the original firmware, (or you need to flash a new Ubuntu bootloader for some reason), or you're like me and are deeply paranoid, then you might want to copy the original firmware from the printer to your computer before you get started.
+
+To do this you'll need an external programmer for the Anet A8's mainboard.
 The easiest tool to use for this is the _Usbasp_, which is an inexpensive programmer you can buy from most online retailers (e.g. mine came from [Amazon](https://amzn.to/2X4I3EU) (Note: affiliate link)), and the 10-pin to 6-pin programming adapter it is commonly sold with.
 
-Then, using a program called _avrdude_ you can interact with the board through its programming port.
+Then, using a program called _avrdude_ you can interact with the board through its programming port. 
 
-Here's how to connect it up. First, orient the end of the 6-pin adapter so that you can see the `MISO/SCK/RST` lines. 
+First, here's how to connect it up. Orient the end of the 6-pin adapter so that you can see the `MISO/SCK/RST` lines. 
 
 ![Holding a usbasp]({{ 'assets/img/anet-a8/usbasp-hold.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -81,7 +85,8 @@ And here's the adapter when it's plugged in in the correct orientation:
 Before you plug it to your computer power up the printer as normal from the wall socket.
 Then connect the Usbasp to your computer via the USB port.
 Now that it's plugged in, you can pull the existing firmware off as a binary.
-On Windows, you might want to use [Avrdudess](https://blog.zakkemble.net/avrdudess-a-gui-for-avrdude/), and then set yourself up to look a bit like this:
+
+On Windows, you can install and use [Avrdudess](https://blog.zakkemble.net/avrdudess-a-gui-for-avrdude/), and then set yourself up to look a bit like this:
 
 ![Anet A8 Avrdudess config]({{ 'assets/img/anet-a8/dudess.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -149,11 +154,11 @@ Now you're almost ready to program! If you don't yet know the port of the printe
 
 ![Device manager]({{ 'assets/img/anet-a8/device-manager.png' | relative_url }}){: .mx-auto.d-block :}
 
-For me it's the _USB-SERIAL CH340_ (COM8)_, so that is therefore my COM port.
+For me it's the _USB-SERIAL CH340 (COM8)_, so that is therefore my COM port.
 
 In the Arduino main window I now set my port to COM8.
 
-![Device manager]({{ 'assets/img/anet-a8/select-port.png' | relative_url }}){: .mx-auto.d-block :}
+![Arduino select port]({{ 'assets/img/anet-a8/arduino-select-port.png' | relative_url }}){: .mx-auto.d-block :}
 
 You're ready to upload the firmware!
 
@@ -193,4 +198,4 @@ Apparently some Anet A8's don't have the Arduino bootloader on them and so the u
 
 You can fix this using the Usbasp. Connect it up as detailed earlier in this document, and then from within Arduino choose `Programmer > Usbasp` and then select `Burn bootloader`. Good luck!
 
-![Burn bootloader]({{ 'assets/img/anet-a8/burn-bootloader.png' | relative_url }}){: .mx-auto.d-block :}
+![Burn bootloader]({{ 'assets/img/anet-a8/arduino-burn-bootloader.png' | relative_url }}){: .mx-auto.d-block :}
