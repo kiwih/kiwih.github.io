@@ -17,7 +17,9 @@ There are a number of ways to do this, and one of my favourites is to add an SD 
 It's not too complicated, and it adds a lot of flexibility, as you can easily take the SD card out of the project and examine it with another machine.
 My second favourite method is to slap on a 20 cent EEPROM, but while that's cheaper it's a lot less flexible and usually stores a lot less data!
 
-I've been asked more than once if I have any good tutorial resources for adding SD cards to a project. 
+![SD card]({{ 'assets/img/cubeide-sd-card/sd-card.png' | relative_url }}){: .mx-auto.d-block :}
+
+I've been asked more than once if I have any good tutorial resources for adding SD cards to an embedded project. 
 Well, there are a few good tutorials and resources floating around online (including even [my own resource from 2017](https://01001000.xyz/2017-08-17-CubeMX-SD-card)) but some of them are a bit dated, relying on older tools and libraries.
 Further, while there are some _amazing_ resources (e.g. [ChaN's](http://elm-chan.org/docs/mmc/mmc_e.html)) on talking to SD cards over SPI, there are less that describe how to interface this with file systems such as FAT, and less again that describe how to do it while also working with STM32's build environments.
 Complicating matters is that officially you should use the STM32 SDIO peripheral to interface with an SD card - however, not all STM32s have the SDIO peripheral, leaving us to fall back on the SPI method (That said, it is worth noting that *not all SD cards support the SPI interface*).
