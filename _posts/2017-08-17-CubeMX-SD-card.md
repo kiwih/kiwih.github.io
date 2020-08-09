@@ -9,9 +9,8 @@ tags: [stm32, c]
 ---
 
 The first time that I tried to get an SD card working with CubeMX I found a most interesting affair - not particularly complicated, but definitely a little fiddly. 
-(2020 edit: I gather now that they include the libraries with CubeMX, but at the time I did this work they did not.)
 
-*Note: This project was created before this blog existed, and as such is awaiting a more detailed write up.*
+*2020 edit: [There is a more detailed and up to date version of this post](https://01001000.xyz/2020-08-09-Tutorial-STM32CubeIDE-SD-card/). Use it instead*.
 
 At any rate, the goal was to get a STM32CubeMX-generated system integrated with FatFs middleware managing an SPI-connected MMC/SD memory card.
 
