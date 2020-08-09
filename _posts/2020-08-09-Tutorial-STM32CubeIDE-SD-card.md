@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 'Tutorial: An SD card over SPI with an STM32 using STM32CubeIDE and FatFS'
+title: 'Tutorial: An SD card over SPI using STM32CubeIDE and FatFS'
 subtitle: Let's have some fun with files
 gh-repo: kiwih/cubeide-sd-card
 gh-badge: [star, fork, follow]
