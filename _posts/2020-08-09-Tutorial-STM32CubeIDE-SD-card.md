@@ -1,11 +1,10 @@
 ---
 layout: post
-title: 'Tutorial: An SD card over SPI with an STM32 using STM32CubeIDE'
+title: 'Tutorial: An SD card over SPI with an STM32 using STM32CubeIDE and FatFS'
 subtitle: Let's have some fun with files
 gh-repo: kiwih/cubeide-sd-card
 gh-badge: [star, fork, follow]
-#cover-img: /assets/img/path.jpg
-share-img: /assets/img/anet-a8/the-printer.jpg
+share-img: /assets/img/cubeide-sd-card/module-wired.png
 tags: [tutorial, stm32, STM32CubeIDE, embedded, c]
 ---
 
@@ -19,12 +18,18 @@ It's not too complicated, and it adds a lot of flexibility, as you can easily ta
 My second favourite method is to slap on a 20 cent EEPROM, but while that's cheaper it's a lot less flexible and usually stores a lot less data!
 
 I've been asked more than once if I have any good tutorial resources for adding SD cards to a project. 
-Well, there are a few good tutorials and resources floating around online (including even my own from 2017) but some of them are a bit dated, relying on older tools and libraries.
-Complicating matters is that officially you should use an SDIO peripheral to interface with an SD card - however, not all STM32s have the SDIO peripheral, leaving us to fall back on the SPI method (That said, it is worth noting that *not all SD cards support the SPI interface*).
+Well, there are a few good tutorials and resources floating around online (including even [my own resource from 2017](https://01001000.xyz/2017-08-17-CubeMX-SD-card)) but some of them are a bit dated, relying on older tools and libraries.
+Further, while there are some _amazing_ resources (e.g. [ChaN's](http://elm-chan.org/docs/mmc/mmc_e.html)) on talking to SD cards over SPI, there are less that describe how to interface this with file systems such as FAT, and less again that describe how to do it while also working with STM32's build environments.
+Complicating matters is that officially you should use the STM32 SDIO peripheral to interface with an SD card - however, not all STM32s have the SDIO peripheral, leaving us to fall back on the SPI method (That said, it is worth noting that *not all SD cards support the SPI interface*).
 
-Well, in this tutorial I'm going to walk through the steps that one would use to get an SD card working over the SPI interface on a STM32 dev board. 
-I'll be using the STM32CubeIDE development environment, and I'll assume you already know the basics of creating a project and setting up debugging and so on.
-If not, then please [check out my earlier blog post in which I introduce STM32CubeIDE](https://01001000.xyz/2020-05-11-Tutorial-STM32CubeIDE-Getting-started/).
+Well, in this tutorial I'm going to walk through the steps that one would use to get an SD card working over the SPI interface on a STM32 dev board (re-)using my FatFS driver from 2017. 
+FatFS is an amazing open source project [also provided by ChaN](http://elm-chan.org/fsw/ff/00index_e.html) which has since been integrated into the STM32Cube tools.
+If you're interfacing with an SD card using the SDIO peripheral, it's pretty easy and the tooling does most of it for you.
+If you're working with other kinds of configurations, e.g. SD card over SPI, it's actually still pretty easy - you just need the appropriate driver!
+So, today I want to show how you can use the FatFS libraries within the STM32CubeIDE development environment, and show how you can simply drop in the appropriate SPI driver to make everything work.
+
+I'll be assuming that you already know the basics of creating a project and setting up debugging and so on.
+If not, then please [check out this earlier tutorial, in which I walk through getting started with STM32CubeIDE](https://01001000.xyz/2020-05-11-Tutorial-STM32CubeIDE-Getting-started/).
 
 # Equipment for this tutorial
 
@@ -39,15 +44,20 @@ Today I will be using the following:
 
 _Note: The above Amazon links are affiliate links. As always I encourage you to shop around, but Amazon usually has pretty good pricing._
 
-# Correct SD Card operation over SPI
+# The software stack
 
-In this blog post I'm not terribly interested in the theory of how an SD card works beyond "we talk to it over SPI". 
+In this blog post I'm not terribly interested in the low-level behaviour we're using to get an SD card working beyond "we talk to it over SPI". 
+It's worth knowing though, so go [check out what ChaN wrote](http://elm-chan.org/docs/mmc/mmc_e.html), and then come back.
+The key knowledge that I want to show in this tutorial is around the architecture of an embedded application that wants to use an SD card with a FAT file system (using the FatFS library).
 
-However, it's useful to at least visualise the architecture you will be building.
+In general it's always useful to visualise the architecture of what you are working with. In a FatFS system it looks like this:
 
-[Todo: a software diagram]
+![Architecture with FatFS]({{ 'assets/img/cubeide-sd-card/stack.png' | relative_url }}){: .mx-auto.d-block :}
 
-[Todo: Maybe a brief primer of how the SD card is working]
+FatFS is provided as a _Middleware_ which can translate FAT file structures in memory into their actual files. Handy!
+For it to do its magic, it needs access to a storage medium. It relies on several functions as ChaN notes here:
+
+![FatFS functions]({{ 'assets/img/cubeide-sd-card/fatfs-functions.png' | relative_url }}){: .mx-auto.d-block :}
 
 # Setting up the Project and Pins
 
@@ -86,7 +96,36 @@ Finally, as we're going to be using the SD card with the FAT file system, scroll
 
 Now save your Device Configuration, and when it asks, 'Yes' to _Do you want to generate Code?_ and 'Yes' to _Do you want to open [the C/C++] perspective now?_.
 
+# Wiring the SD card adapter
+
+Now that you have configured the pins in CubeIDE, we need to physically wire them in real life!
+
+Using the SPI pins from the earlier figure, and the power pins depicted here,
+
+![Power Pins]({{ 'assets/img/cubeide-sd-card/nucleo_f303re_morpho_power.png' | relative_url }}){: .mx-auto.d-block :}
+
+Use your ribbon cables and connect these to the appropriate pins on the SD card adapter module (the module's pins are labelled on the silk screen, so this isn't much of a chore).
+
+![SD adapter silkscreen labels]({{ 'assets/img/cubeide-sd-card/module-labels.png' | relative_url }}){: .mx-auto.d-block :}
+
+In table form, the connections are as follows:
+
+| SD Adapter side | `Nucleo-F303RE` side |
+| :-------------- | :------------------- |
+| CS              | PB1 (GPIO SD_CS)     |
+| SCK             | PB13 (SPI2 SCLK)     |
+| MOSI            | PB15 (SPI2 MOSI)     |
+| MISO            | PB14 (SPI2 MISO)     |
+| VCC             | 5V                   |
+| GND             | GND                  |
+
+Once you're finished it should look something like this:
+
+![Wired up]({{ 'assets/img/cubeide-sd-card/module-wired.png' | relative_url }}){: .mx-auto.d-block :}
+
 # Key files to make this work
+
+
 
 * FatFS needs a driver structure. CubeIDE makes us one to fill in. We're going to link this to our own file by providing some function names.
 * Modifications in `FATFS/Target/user_diskio.h`

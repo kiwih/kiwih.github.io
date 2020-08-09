@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Tutorial: Getting started with an ST development board using STM32CubeIDE'
-subtitle: Project initialisation, intro to debugging, and using the virtual COM port
+subtitle: Project initialisation, intro to debugging, and the virtual COM port
 share-img: assets/img/cubeide-intro/boards.jpg
 tags: [tutorial, stm32, STM32CubeIDE, tooling, debugging, c]
 ---
