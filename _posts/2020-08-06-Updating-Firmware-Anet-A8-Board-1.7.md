@@ -61,7 +61,7 @@ So, I decided to tackle this - here's my walkthrough on updating the firmware on
 
 # (Optional) First step: Backing up the original firmware
 
-If you think you might ever want to restore the original firmware, (or you need to flash a new Ubuntu bootloader for some reason), or you're like me and are deeply paranoid, then you might want to copy the original firmware from the printer to your computer before you get started.
+If you think you might ever want to restore the original firmware, (or you need to flash a new Arduino bootloader for some reason), or you're like me and are deeply paranoid, then you might want to copy the original firmware from the printer to your computer before you get started.
 
 To do this you'll need an external programmer for the Anet A8's mainboard.
 The easiest tool to use for this is the _Usbasp_, which is an inexpensive programmer you can buy from most online retailers (e.g. mine came from [Amazon](https://amzn.to/2X4I3EU) (Note: affiliate link)), and the 10-pin to 6-pin programming adapter it is commonly sold with.
