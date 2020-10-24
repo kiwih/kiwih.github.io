@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Tutorial: Timers and PWM (and a cheeky AM radio transmission) using STM32CubeIDE'
-subtitle: 
+subtitle: And a brief look at timer interrupts
 gh-repo: kiwih/cubeide-timers-demo
 gh-badge: [star, fork, follow]
 share-img: 
@@ -78,7 +78,6 @@ Add the following code:
 
     /* USER CODE BEGIN 3 */
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  uart2_printf("Hello!\r\n");
 	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
@@ -132,7 +131,7 @@ For our desired division, 72, we must therefore set the prescaler as 71.
 Head back into the device configuration tool, and expand the settings for _TIM1_.
 Set the Clock Source to _Internal Clock_, and the Prescaler to 71, as depicted.
 
-![CPU timer block]({{ 'assets/img/cubeide-timers/tim1-config.png' | relative_url }}){: .mx-auto.d-block :}
+![Timer1 basic config]({{ 'assets/img/cubeide-timers/tim1-config.png' | relative_url }}){: .mx-auto.d-block :}
 
 Now, save your configuration and press yes to regenerate code when prompted.
 
@@ -195,88 +194,491 @@ If we compile and run this we should see that the LED is now blinking much more 
 
 # A timer interrupt
 
-There are some drawbacks to using the `HAL_Delay` function.
-Like all blocking functions, it prevents us from multi-tasking.
+How can we avoid having blocking functions? 
+The answer is to change our way of thinking.
+Rather than continuously checking to see if some request has finished (i.e. checking to see if the time delay has elapsed), we instead should request that the underlying archicture does the job and then informs us when it is complete.
+In computing terms this is known as an _interrupt_.  
 
-* Replace delay() with interrupts to blink LED using Timer2
-* Add more interrupts to show we're doing it in parallel (using breadboard?)
+There are lots of ways to visualise interrupts, but the way that I like the most is to consider a common smoke detector.
+It works in parallel to you at home, and should a fire require your attention, it will interrupt whatever you're doing by raising the alarm. Once you've dealt with the cause of the issue, you can return to your home life.
 
-| SD Adapter side | `Nucleo-F303RE` side |
-| :-------------- | :------------------- |
-| CS              | PB1 (GPIO SD_CS)     |
-| SCK             | PB13 (SPI2 SCLK)     |
-| MOSI            | PB15 (SPI2 MOSI)     |
-| MISO            | PB14 (SPI2 MISO)     |
-| VCC             | 5V                   |
-| GND             | GND                  |
+In the timer block diagram the interrupt hardware is managed by the capture/compare registers and represented by the signals CCxI. 
+They have a few different operating modes, but in their simplest form you can consider them as "a value that the timer counts to". 
 
-* Configure Timer3 to have a UART output every 1s. 
+When we configure them, we can set them up such that upon the timer reaching some value, it calls a function in our C program - which we term the _Interrupt Service Routine_ or ISR.
 
-# Segue: A watchdog interrupt
+Let's try an example. Let's have our timer trigger an interrupt every 500 milliseconds.
+Head back into the device configuration viewer, and then back into the TIM1 configuration. 
+We'll need to change our Prescaler PSC from 71 (i.e. divide clock by 72) to 719 (i.e. divide clock by 720, each tick represents 10ms).
+Then, we'll change the counter period to 49999 - which means an overall period of 50,000 cycles (like the prescaler, this number is 1 less than the executed value).
 
-* Reboot
+![Timer1 setting up for 500 millisecond period]({{ 'assets/img/cubeide-timers/tim1-config2.png' | relative_url }}){: .mx-auto.d-block :}
 
-# Generating PWM:
+Now we need to enable the interrupt hardware. Select the NVIC settings tab, and then check the box for TIM1 update (note that this shares a TIM16 interrupt, but as TIM16 isn't enabled this doesn't bother us).
 
-* Delete Timer2/3 interrupt/code.
+![Timer1 enable interrupt]({{ 'assets/img/cubeide-timers/tim1-enable-interrupt.png' | relative_url }}){: .mx-auto.d-block :}
 
-* The basics, talk about theory of PWM
+Now we need to add some code to use this interrupt. Head back to `main.c`.
+Let's first write the ISR for the timer period elapsed:
 
-* Blink LED using Timer2 PWM.
-
-# Putting it together: Let's make an AM radio transmission
-
-* AM radio format + carrier waves etc
-
-Adding a pin:
-
-Since we want to be emitting a radio signal, we're going to need some kind of antenna.
-We'll make this very easy: We'll use a single wire connected to one of the microcontroller's pins that has PWM capability. 
-
-So, let's quickly see what our pin options are. 
-
-On the `Nucleo-F303-RE` we have both Arduino style headers as well as ST's branded _morpho_ headers, which are the double rows of pins down each side. 
-For now, I'm going to use the pin that is labelled PWM/D9 on the silk screen.
-
-[This document](https://www.st.com/resource/en/user_manual/dm00105823-stm32-nucleo-64-boards-mb1136-stmicroelectronics.pdf) from ST provides us with the correct pinout for the F303-RE, or alternatively (and in a more attractive and detailed way) the same info is presented on ST's mbed OS website [here](https://os.mbed.com/platforms/ST-Nucleo-F303RE/).
-
-(Update after here) Straight away I can see that SPI2 is the winner - it is broken out onto the pins in the bottom right, along with PB1 which we will use for the chip select line.
-
-![SPI2 Pins]({{ 'assets/img/cubeide-sd-card/nucleo_f303re_morpho_spi2.png' | relative_url }}){: .mx-auto.d-block :}
-
-So, let's set up our SPI2 and GPIO in the Device Configuration View. Click SPI2 on the left, and then set it to Full Duplex Master with no Hardware NSS.
-Then set the Data Size to 8 bits, and the clock prescaler to 128 (SD cards start up with low speeds and switch to higher speeds later. We'll look at how to do this soon).
-
-![SPI2 Config]({{ 'assets/img/cubeide-sd-card/cubeide-spi2-setup.png' | relative_url }}){: .mx-auto.d-block :}
-
-Then, create your Chip Select line on PB1 - I find setting a sensible name is also good:
-
-![SD_CS Config]({{ 'assets/img/cubeide-sd-card/cubeide-sd-cs-setup.png' | relative_url }}){: .mx-auto.d-block :}
-
-Finally, as we're going to be using the SD card with the FAT file system, scroll down in the device categories to `Middleware`, and expand this, then enable `FATFS` as `User-defined`. You may leave all other parameters as their defaults.
-
-![FATFS Config]({{ 'assets/img/cubeide-sd-card/cubeide-fatfs-setup.png' | relative_url }}){: .mx-auto.d-block :}
-
-Now save your Device Configuration, and when it asks, 'Yes' to _Do you want to generate Code?_ and 'Yes' to _Do you want to open [the C/C++] perspective now?_.
-
-* Musical notes
-
-* PWM to make note (square wave) over carrier wave 
-
-* Listening using radio or SDR
-
-
-
-*In `user_diskio.c` Decl:*
+*In `main.c`, private user code section:*
 ```c
-/* USER CODE BEGIN DECL */
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+void delay_us (uint16_t us) //warning: this function is not reentrant
+{ . . . }
 
-/* Includes ------------------------------------------------------------------*/
-#include <string.h>
-#include "ff_gen_drv.h"
-#include "user_diskio_spi.h"
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+}
+/* USER CODE END 0 */
 ```
+
+Now we need to actually use the timer (and remove the blinking LED code from earlier).
+
+*In `main.c`, `main()`:*
+```c
+/* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_TIM1_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim1); //start the timer
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  // nothing to do in here at the moment . . .
+  }
+  /* USER CODE END 3 */
+```
+
+Note that we have to actually start the timer in interrupt mode ourselves, and don't forget to delete the earlier code from USER CODE section 3.
+
+Try out the execution now - what's changed? Well, the LED should now be reliably blinking with a period of 1 second (that is, 500ms on, 500 ms off).
+
+We've now succeeded in making this time-driven application using interrupts. This means we could put other code into our main `while` loop and not have to be waiting all the time for delays to finish! Within microcontrollers, interrupts are a key step on the journey to multi-tasking implementations and microcontrollers doing multiple control tasks at once.
+
+# Introduction to PWM
+
+As it turns out, using a timer to turn on and off a pin at a regular interval (i.e. as a _square wave_) is an extremely common job requirement.
+This is because we can use square wave signals with varying _duty cycles_ (i.e. varying ratios of on-off time) to change the effective amount of power that a given signal is transmitting.
+[Wikipedia has got some lovely details on this](https://en.wikipedia.org/wiki/Pulse-width_modulation).
+
+We can distill the important part into this picture:
+
+![Duty cycle diagram with varying size square waves]({{ 'assets/img/cubeide-timers/dutycycle.png' | relative_url }}){: .mx-auto.d-block :}
+
+By varying the ratio of high time to low time while preserving the period of the signal (and while preserving the voltage and other characteristics) we are able to change the amount of transmitted power.
+
+Let's see an example. We're going to need to change the configuration again, so head back into the device configuration tool.
+We're going to drive the on-board LED using PWM, so we'll need to change the setup for that pin.
+In the device configuration tool, set TIM1 to have prescaler zero again, and maximum period (65535).
+Then, set PA5 to be _TIM2_CH1_, which is a PWM source.
+Select TIM2 under Timers, enable it by setting the Clock Source to _Internal Clock_, and then set Channel 1 to _PWM Generation CH1_.
+Choosing the period of a PWM signal is largely dependent upon the application you're using. For what we'll be doing, 1kHz is a good value, so we'll set the prescaler again to 71 (giving us 1 microsecond resolution) and then choose a counter period of 999 (that's 1,000 microseconds or 1 millisecond = 1 kHz).
+We'll then set an initial duty cycle of 50% by setting pulse to _499_ (half of 1,000 - 1).
+
+Depicted:
+
+![Configuration of TIM2 and the pins]({{ 'assets/img/cubeide-timers/dutycycle.png' | relative_url }}){: .mx-auto.d-block :}
+
+Save and regenerate your code. Now we need to edit our code again.
+Firstly, we want to use the TIM1 interrupt to change the duty cycle of TIM2. This will enable us to visualise the effects of a duty cycle that varies over time. 
+
+
+*In `main.c`, private user code section:*
+```c
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+void delay_us (uint16_t us) //warning: this function is not reentrant
+{ . . . }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	//change the duty cycle of TIM2 whenever the TIM1 interrupt occurs.
+	static uint8_t dir = 0; //direction: are we currently increasing duty cycle or currently decreasing?
+	uint32_t i = __HAL_TIM_GET_COMPARE(&htim2, TIM_CHANNEL_1); //the period is 1000. Duty cycle should vary between 0 and 1000.
+
+	if(dir == 0) { //change duty cycle by changing "i" by 1 in the positive or negative direction
+		i--;
+		if(i == 0) {
+			dir = 1;
+		}
+	} else {
+		i++;
+		if(i == 1000) {
+			dir = 0;
+		}
+
+	}
+	//update the PWM control register
+	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, i);
+}
+/* USER CODE END 0 */
+```
+
+There's quite a lot going on in there, but hopefully the comments can walk you through it.
+Essentially, we are varying the register which controls the duty cycle of the PWM signal by changing it from 0 (representing 0% duty cycle) to 1000 (representing 100%).
+
+Now we need to enable the PWM output.
+
+*In `main.c`, `main()`:*
+```c
+/* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_TIM1_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim1); 
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1); //enable PWM output on LED pin
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  // nothing to do in here at the moment . . .
+  }
+  /* USER CODE END 3 */
+```
+
+Compile and download this to the board, and this is what you should see:
+
+<video width='100%' controls>
+  <source src="{{ '/assets/vid/cubeide-timers/fade-blink.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+Compare that to earlier - this LED is now _fading_ on and off as the PWM duty cycle goes from 0% to 100%.
+
+# A silly application: PWM to generate AM radio transmission
+
+Electrical signals like PWM tend to radiate electromagnetic radiation.
+This is usually not what we want, but for the rest of this tutorial, we'll actually (ab)use this property to generate an AM radio transmission!
+
+Let's first take a brief look at what AM radio is. AM stands for Amplitude Modulation. This means we take a _carrier wave_ and combine it with some _information signal_, by changing the _amplification_ of the carrier wave over time.
+
+As always, [Wikipedia](https://en.wikipedia.org/wiki/Amplitude_modulation) has a great explanation, this figure (CC BY-SA 3.0) by Ivan Akira is an outstanding visualisation of the combination:
+
+![AM explanation]({{ 'assets/img/cubeide-timers/am-explain.png' | relative_url }}){: .mx-auto.d-block :}
+
+For an AM audio transmission, the information signal represents the audio we want to transmit, and the carrier wave is the frequency you would tune your radio to.
+
+Through careful use of the PWM abilities of our microcontroller, we can generate a complete AM radio signal using just software.
+
+*Note: Depending on the laws of your country, generating and emitting unlicensed radio wave signals (even the extremely weak ones that we'll be working with here) may get you in trouble. Proceed at your own risk.*
+
+The first trick is to generate the carrier wave itself, so let's do that now. 
+I want my frequency to be at 1,000 kHz as this is a fairly normal frequency for AM radio, and I'll need to choose a pin to use as an Antenna. I've selected the pin labelled PWM/D9 on the Arduino headers. If we look at the schematic for the board, we can see that this pin goes to PC7 on the processor, which has the option to become PWM channel TIM3_CH2.
+
+Let's do some quick math. If we divide the clock by 18 then the clock is at 4MHz. If we then set the clock period as 4 then we have an overall period of 1MHz (or 1,000 kHz). To get a good carrier wave the duty cycle should be 50%, so we set the Pulse to 2.
+
+Depicted:
+
+![Timer3 config with output pin]({{ 'assets/img/cubeide-timers/tim3-config.png' | relative_url }}){: .mx-auto.d-block :}
+
+Now let us enable the signal. Regenerate the code and head into `main.c` again:
+
+*In `main.c`, `main()`:*
+```c
+/* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_TIM1_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim1); 
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1); //enable PWM output on LED pin
+  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  // nothing to do in here at the moment . . .
+  }
+  /* USER CODE END 3 */
+```
+
+Download this to your board now, and plug a loose wire into the Arduino header pin PWM/D9. Tune a radio to 1kHz AM, and then press the reset buton on your board. You should be able to hear the carrier wave come in and out.
+
+Demo:
+
+<video width='100%' controls>
+  <source src="{{ '/assets/vid/cubeide-timers/audio-hiss.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+Of course, this is not tremendously interesting. 
+What we'd like to do is overlay an audio signal on top of this wave.
+Guess what - we can do that (in a sense).
+Recall that audio waves can themselves be represented in a rectangular fashion, and that AM says we change the amplification of our signal. 
+
+Well, while we don't have fine-grain control over the voltage of our PWM, we do have the ability to turn it on and off, which gives us two levels of amplification - 0% and 100%. So if our audio signal is also only made up of rectangular waves,
+we can combine them, like so:
+
+![AM combination of PWM]({{ 'assets/img/cubeide-timers/dutycycle-am-wave.png' | relative_url }}){: .mx-auto.d-block :}
+
+So how can we generate these audio waves?
+Well, audio itself can be represented as square waves of [varying frequencies](https://pages.mtu.edu/~suits/notefreqs.html). For instance, the note A4 is 440Hz, B4 is 493.88Hz, and so on.
+
+Let's try make a single tone come through our AM radio - A4. This means we'll need to turn the PWM channel on and off 440 times a second.
+
+To do this I'm going to rejig our microsecond timer from earlier (so we don't remove its current purpose).
+Let's introduce another timer, TIM4, and set it up with a prescaler of 71, just as we did earlier.
+Then, regenerate your code, and update the delay_us function to now use `htim4` instead of `htim1`. 
+We're also going to leave the timer running always, rather than starting and stopping it (this will make the function slightly more accurate as it won't have as many extraneous instructions).
+
+![Timer4 config]({{ 'assets/img/cubeide-timers/tim4-config.png' | relative_url }}){: .mx-auto.d-block :}
+
+*In `main.c`, private user code section:*
+```c
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+void delay_us (uint16_t us) //warning: this function is not reentrant. NOTE CHANGE TO TIMER 4
+{
+    __HAL_TIM_SET_COUNTER(&htim4,0); //reset the timer counter
+	while (__HAL_TIM_GET_COUNTER(&htim4) < us);  // wait for the counter to reach the us value provided as an argument
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	. . .
+}
+/* USER CODE END 0 */
+```
+
+And now update our main to toggle the PWM on and off at an appropriate speed:
+
+*In `main.c`, `main()`:*
+```c
+/* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_TIM1_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim1);
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1); //enable PWM output on LED pin
+  HAL_TIM_Base_Start(&htim4);
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  delay_us(500000/440); //desired frequency is 440Hz, toggle at 220Hz. Delay is thus (1/f*1000000)/2 to get to us, or 500000/f.
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+	  delay_us(500000/440);
+	  HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_2);
+  }
+  /* USER CODE END 3 */
+```
+
+If you run and download this now, you will note that a tone at 440Hz is being generated through your radio!
+
+Now let us spin up a table of musical notes so we can play a song.
+
+*In `main.c`, private user code section:*
+```c
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+void delay_us (uint16_t us) //warning: this function is not reentrant
+{
+    . . .
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	. . .
+}
+
+#define FREQ_TO_DELAY_US(x) (500000 / x)
+typedef enum {
+	note_a 		= 0,
+	note_a_sh 	= 1,
+	note_b 		= 2,
+	note_c 		= 3,
+	note_c_sh 	= 4,
+	note_d 		= 5,
+	note_d_sh 	= 6,
+	note_e 		= 7,
+	note_f 		= 8,
+	note_f_sh 	= 9,
+	note_g		= 10,
+	note_g_sh	= 11
+} note_enum;
+
+#define SCALE_LEN 12
+uint16_t note_delays_us[] = {
+		FREQ_TO_DELAY_US(220),
+		FREQ_TO_DELAY_US(233),
+		FREQ_TO_DELAY_US(247),
+		FREQ_TO_DELAY_US(262),
+		FREQ_TO_DELAY_US(277),
+		FREQ_TO_DELAY_US(294),
+		FREQ_TO_DELAY_US(311),
+		FREQ_TO_DELAY_US(330),
+		FREQ_TO_DELAY_US(349),
+		FREQ_TO_DELAY_US(370),
+		FREQ_TO_DELAY_US(392),
+		FREQ_TO_DELAY_US(415),
+		FREQ_TO_DELAY_US(440),
+		FREQ_TO_DELAY_US(466),
+		FREQ_TO_DELAY_US(494),
+		FREQ_TO_DELAY_US(523),
+		FREQ_TO_DELAY_US(554),
+		FREQ_TO_DELAY_US(587),
+		FREQ_TO_DELAY_US(622),
+		FREQ_TO_DELAY_US(659),
+		FREQ_TO_DELAY_US(698),
+		FREQ_TO_DELAY_US(740),
+		FREQ_TO_DELAY_US(784),
+		FREQ_TO_DELAY_US(831)
+};
+
+#define NOTE_LEN_Q 652
+#define NOTE_LEN_E (NOTE_LEN_Q/2)
+#define NOTE_LEN_S (NOTE_LEN_Q/4)
+#define NOTE_LEN_T (NOTE_LEN_Q/8)
+#define NOTE_LEN_H (NOTE_LEN_Q*2)
+#define NOTE_LEN_F (NOTE_LEN_Q*4)
+
+typedef struct {
+	note_enum note;
+	uint8_t scale_pos; //either 0 or 1
+	uint16_t duration_ms;
+	uint16_t duration_rest; //if rest then don't play
+} playNote;
+
+playNote furEliseSong[] = {
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_d_sh, 1, NOTE_LEN_E, 0},
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_d_sh, 1, NOTE_LEN_E, 0},
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_E, 0},
+		{note_d, 1, NOTE_LEN_E, 0},
+		{note_c, 1, NOTE_LEN_E, 0},
+		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
+
+		{note_c, 0, NOTE_LEN_E, 0},
+		{note_e, 0, NOTE_LEN_E, 0},
+		{note_a, 1, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
+
+		{note_e, 0, NOTE_LEN_E, 0},
+		{note_g_sh, 0, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_E, 0},
+		{note_c, 1, NOTE_LEN_Q, NOTE_LEN_E},
+
+		{note_e, 0, NOTE_LEN_E, 0},
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_d_sh, 1, NOTE_LEN_E, 0},
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_d_sh, 1, NOTE_LEN_E, 0},
+		{note_e, 1, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_E, 0},
+		{note_d, 1, NOTE_LEN_E, 0},
+		{note_c, 1, NOTE_LEN_E, 0},
+		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
+
+		{note_c, 0, NOTE_LEN_E, 0},
+		{note_e, 0, NOTE_LEN_E, 0},
+		{note_a, 1, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
+
+		{note_e, 0, NOTE_LEN_E, 0},
+		{note_c, 1, NOTE_LEN_E, 0},
+		{note_b, 1, NOTE_LEN_E, 0},
+		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_Q}
+};
+
+void tx_tone(uint32_t dTime, uint32_t playTime) {
+	uint32_t end = HAL_GetTick() + playTime;
+
+  while (end > HAL_GetTick()) {
+	  delay_us(dTime);
+	  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+	  delay_us(dTime);
+	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+  }
+}
+
+void tx_note(playNote *n) {
+	tx_tone(note_delays_us[n->note + SCALE_LEN * n->scale_pos], n->duration_ms-50);
+	tx_tone(1, 50);
+	if(n->duration_rest > 0) {
+		tx_tone(1, n->duration_rest);
+	}
+}
+/* USER CODE END 0 */
+```
+
+There's a lot going on here, but rest assured none of it is complicated. We create a look up table of musical note frequency delays, then define some musical note lengths.
+We then create a structure which will hold notes as they are played in a song, and finally define an array which is our song.
+We then create a function to transmit a raw tone which by rapidly switches the PWM from TIM3 on and off, as we did in the earlier example.
+The only difference is we now do this for some number of nanoseconds.
+Finally, we create a function to transmit the note structure by translating it onto the transmit tone function.
+
+And in the main loop,
+
+*In `main.c`, `main()`:*
+```c
+/* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_TIM1_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim1);
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1); //enable PWM output on LED pin
+  HAL_TIM_Base_Start(&htim4);
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  for(int i = 0; i < 35; i++) { //35 notes to send
+		  tx_note(&furEliseSong[i]);
+	  }
+  }
+  /* USER CODE END 3 */
+```
+
+That's it, we're good to go. I listened using my RTL-SDR to visualize it on the PC.
+
+<video width='100%' controls>
+  <source src="{{ '/assets/vid/cubeide-timers/fur-elise.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
 
 # Conclusions
 
-If you would like the complete code that accompanies this blog post, it is made available in the associated Github repository [here](https://github.com/kiwih/cubeide-twinkle).
+In this tutorial we looked at timers, timer interrupts, and PWM. We made two combined applications: a fading LED, and an AM radio transmitter.
+
+If you would like the complete code that accompanies this blog post, it is made available in the associated Github repository [here](https://github.com/kiwih/cubeide-timers-demo).
