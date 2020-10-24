@@ -66,38 +66,6 @@ For now, we're going to add some code, as below. Remember you can get autocomple
 
 ![Autosuggest]({{ 'assets/img/cubeide-timers/eclipse-autosuggest.png' | relative_url }}){: .mx-auto.d-block :}
 
-First, let us add some code to create a custom `my_printf` function.
-This will be helpful as it will let us send messages to the virtual COM port.
-
-*In `main.c`, in the includes section:*
-```c
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdarg.h> //needed for the custom printf declaration to support varying numbers of arguments
-/* USER CODE END Includes */
-```
-
-*In `main.c`, in the private user code section:*
-```c
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-void uart2_printf(const char *fmt, ...) {
-  char buffer[256];
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(buffer, sizeof(buffer), fmt, args);
-  va_end(args);
-
-  HAL_UART_Transmit(&huart2, buffer, strlen(buffer), -1);
-}
-/* USER CODE END 0 */
-```
-
 Add the following code:
 
 *In `main.c`, `main()`:*
@@ -116,7 +84,7 @@ Add the following code:
   /* USER CODE END 3 */
 ```
 
-What does this do? Hopefully you're able to work it out! In the infinite loop, it will first toggle the LED pin (changing it from high to low or vice versa), then it will send out "Hello!" on the UART, and finally it will run the `HAL_Delay()` function.
+What does this do? Hopefully you're able to work it out! In the infinite loop, it will first toggle the LED pin (changing it from high to low or vice versa) and then it will run the `HAL_Delay()` function.
 `HAL_Delay` is what is known as a _blocking_ function. 
 Inside the function is a loop which will iterate until the number of milliseconds that you specified as the argument elapses.
 In other words, it will pause execution. In our case, we asked it to pause for 1000 milliseconds.
@@ -185,8 +153,6 @@ Let's now add our own little custom function:
 ```c
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void uart2_printf(const char *fmt, ...) { . . . }
-
 void delay_us (uint16_t us) //warning: this function is not reentrant
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0); //reset the timer counter
@@ -209,15 +175,25 @@ Finally, the fourth line stops the timer.
 There's one thing to note with this function's implementation: it is not _reentrant_. What does this mean?
 Because the function has _side effects_ (it resets/starts/stops the timer) when it is called, if this function was to be used _in parallel_ the two function calls would interfere with one another. It is possible to write a version of this function such that it is reentrant (like `HAL_Delay()`), but let's keep it simple and not worry about that for now.
 
-Let's try out our new functionality by modifying our `while(1)` in `main.c`:
+Let's try out our new functionality by modifying our `while(1)` in `main.c` to use the new delay function. Note that we can't request a delay greater than 65:535 microseconds. I choose to use 50,000:
 
 *In `main.c`, `main()`:*
 ```c
+/* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
 
+    /* USER CODE BEGIN 3 */
+	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	  delay_us(50000);
+  }
+  /* USER CODE END 3 */
+```
 
+If we compile and run this we should see that the LED is now blinking much more rapidly.
 
 # A timer interrupt
-
 
 There are some drawbacks to using the `HAL_Delay` function.
 Like all blocking functions, it prevents us from multi-tasking.
