@@ -265,11 +265,11 @@ Try out the execution now - what's changed? Well, the LED should now be reliably
 
 We've now succeeded in making this time-driven application using interrupts. This means we could put other code into our main `while` loop and not have to be waiting all the time for delays to finish! Within microcontrollers, interrupts are a key step on the journey to multi-tasking implementations and microcontrollers doing multiple control tasks at once.
 
-# Introduction to PWM
+# Introduction to Pulse Width Modulation (PWM)
 
 As it turns out, using a timer to turn on and off a pin at a regular interval (i.e. as a _square wave_) is an extremely common job requirement.
 This is because we can use square wave signals with varying _duty cycles_ (i.e. varying ratios of on-off time) to change the effective amount of power that a given signal is transmitting.
-[Wikipedia has got some lovely details on this](https://en.wikipedia.org/wiki/Pulse-width_modulation).
+This is called _Pulse Width Modulation_, and [Wikipedia has got some lovely details on it](https://en.wikipedia.org/wiki/Pulse-width_modulation).
 
 We can distill the important part into this picture:
 
@@ -278,6 +278,7 @@ We can distill the important part into this picture:
 By varying the ratio of high time to low time while preserving the period of the signal (and while preserving the voltage and other characteristics) we are able to change the amount of transmitted power.
 
 Let's see an example. We're going to need to change the configuration again, so head back into the device configuration tool.
+
 We're going to drive the on-board LED using PWM, so we'll need to change the setup for that pin.
 In the device configuration tool, set TIM1 to have prescaler zero again, and maximum period (65535).
 Then, set PA5 to be _TIM2_CH1_, which is a PWM source.
@@ -325,6 +326,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 There's quite a lot going on in there, but hopefully the comments can walk you through it.
 Essentially, we are varying the register which controls the duty cycle of the PWM signal by changing it from 0 (representing 0% duty cycle) to 1000 (representing 100%).
+As this has been encoded as the TIM1 ISR, this will happen each time that TIM1 reaches the end of its period.
 
 Now we need to enable the PWM output.
 
@@ -438,12 +440,13 @@ Well, audio itself can be represented as square waves of [varying frequencies](h
 
 Let's try make a single tone come through our AM radio - A4. This means we'll need to turn the PWM channel on and off 440 times a second.
 
-To do this I'm going to rejig our microsecond timer from earlier (so we don't remove its current purpose).
-Let's introduce another timer, TIM4, and set it up with a prescaler of 71, just as we did earlier.
-Then, regenerate your code, and update the delay_us function to now use `htim4` instead of `htim1`. 
-We're also going to leave the timer running always, rather than starting and stopping it (this will make the function slightly more accurate as it won't have as many extraneous instructions).
+To do this I'm going to rejig our microsecond delay function `delay_us` from earlier (as we retasked TIM1 to the fading LED job).
+So, let's introduce another timer, TIM4, and set it up with a prescaler of 71, just as we did earlier.
 
 ![Timer4 config]({{ 'assets/img/cubeide-timers/tim4-config.png' | relative_url }}){: .mx-auto.d-block :}
+
+Regenerate your code, and update the delay_us function to now use `htim4` instead of `htim1`. 
+We're also going to leave the timer running always, rather than starting and stopping it (this will make the function slightly more accurate as it won't have as many extraneous instructions).
 
 *In `main.c`, private user code section:*
 ```c
@@ -706,10 +709,10 @@ Your browser does not support the video tag.
 
 That brings us to the end of this tutorial. Feel free to chop and change the provided code as necessary - see what other functionality and/or songs you can produce!
 
-![Finished]({{ 'assets/img/cubeide-timers/done.jpg' | relative_url }}){: .mx-auto.d-block :}
-
 # Conclusions
 
 In this tutorial we looked at timers, timer interrupts, and PWM. We made two combined applications: a fading LED, and an AM radio transmitter.
+
+![Finished]({{ 'assets/img/cubeide-timers/done.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 If you would like the complete code that accompanies this blog post, it is made available in the associated Github repository [here](https://github.com/kiwih/cubeide-timers-demo).
