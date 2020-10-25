@@ -12,7 +12,7 @@ author: Hammond Pearce
 # --- List of links in the navigation bar --- #
 
 navbar-links:
-  STM32CubeIDE Tutorials: "tags#STM32CubeIDE"
+  STM32CubeIDE Tutorials: "tags/#STM32CubeIDE"
   About Me: "aboutme"
 
 # --- Logo --- #
