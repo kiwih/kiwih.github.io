@@ -175,7 +175,7 @@ Finally, the fourth line stops the timer.
 There's one thing to note with this function's implementation: it is not _reentrant_. What does this mean?
 Because the function has _side effects_ (it resets/starts/stops the timer) when it is called, if this function was to be used _in parallel_ the two function calls would interfere with one another. It is possible to write a version of this function such that it is reentrant (like `HAL_Delay()`), but let's keep it simple and not worry about that for now.
 
-Let's try out our new functionality by modifying our `while(1)` in `main.c` to use the new delay function. Note that we can't request a delay greater than 65:535 microseconds. I choose to use 50,000:
+Let's try out our new functionality by modifying our `while(1)` in `main.c` to use the new delay function. Note that, as we discussed, we can't request a delay greater than 65,535 microseconds. I choose to use 50,000:
 
 *In `main.c`, `main()`:*
 ```c
