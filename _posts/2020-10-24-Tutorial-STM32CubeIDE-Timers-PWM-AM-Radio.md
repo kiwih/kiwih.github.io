@@ -44,10 +44,10 @@ _Note: The above Amazon links are affiliate links. As always I encourage you to 
 3. Answer 'Yes' to _Initialize all peripherals in their default configuration?_.
 4. Answer 'Yes' to _Open device configuration view?_. 
 
-The Device Configuration View is where you configure exactly which pins/peripherals are enabled and what their settings are.
+The Device Configuration Tool is where you configure exactly which pins/peripherals are enabled and what their settings are.
 For now we'll leave it at its defaults, but let's quickly note the hardware available to us:
 
-![Default Config]({{ 'assets/img/cubeide-timers/default-hardware.png' | relative_url }}){: .mx-auto.d-block :}
+![Default available hardware]({{ 'assets/img/cubeide-timers/available-hardware.png' | relative_url }}){: .mx-auto.d-block :}
 
 As you can see there is a push button (called B1) at pin PC13, an LED called LD2 at pin PA5, and a UART TX/RX at PA2/PA3 which connects to the programmer's virtual COM port (if you're unsure about this, do [check out my earlier tutorial](https://01001000.xyz/2020-05-11-Tutorial-STM32CubeIDE-Getting-started/) where I discuss it in some detail).
 
@@ -137,7 +137,7 @@ Now, save your configuration and press yes to regenerate code when prompted.
 
 You should notice that an extra line of configuration has appeared in your `main.c`:
 
-*In `main.c`, `main():*
+*In `main.c`, `main()`:*
 ```c
 /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -155,9 +155,9 @@ Let's now add our own little custom function:
 void delay_us (uint16_t us) //warning: this function is not reentrant
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0); //reset the timer counter
-    HAL_TIM_Base_Start(&htim1); //start the timer
+	HAL_TIM_Base_Start(&htim1); //start the timer
 	while (__HAL_TIM_GET_COUNTER(&htim1) < us);  // wait for the counter to reach the us value provided as an argument
-    HAL_TIM_Base_Stop(&htim1); //stop the timer.
+	HAL_TIM_Base_Stop(&htim1); //stop the timer.
 }
 /* USER CODE END 0 */
 ```
@@ -184,8 +184,8 @@ Let's try out our new functionality by modifying our `while(1)` in `main.c` to u
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  delay_us(50000);
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		delay_us(50000);
   }
   /* USER CODE END 3 */
 ```
@@ -208,7 +208,7 @@ They have a few different operating modes, but in their simplest form you can co
 When we configure them, we can set them up such that upon the timer reaching some value, it calls a function in our C program - which we term the _Interrupt Service Routine_ or ISR.
 
 Let's try an example. Let's have our timer trigger an interrupt every 500 milliseconds.
-Head back into the device configuration viewer, and then back into the TIM1 configuration. 
+Head back into the device configuration tool, and then back into the TIM1 configuration. 
 We'll need to change our Prescaler PSC from 71 (i.e. divide clock by 72) to 719 (i.e. divide clock by 720, each tick represents 10ms).
 Then, we'll change the counter period to 49999 - which means an overall period of 50,000 cycles (like the prescaler, this number is 1 less than the executed value).
 
@@ -286,7 +286,7 @@ We'll then set an initial duty cycle of 50% by setting pulse to _499_ (half of 1
 
 Depicted:
 
-![Configuration of TIM2 and the pins]({{ 'assets/img/cubeide-timers/dutycycle.png' | relative_url }}){: .mx-auto.d-block :}
+![Configuration of TIM2 and the pins]({{ 'assets/img/cubeide-timers/tim2-config.png' | relative_url }}){: .mx-auto.d-block :}
 
 Save and regenerate your code. Now we need to edit our code again.
 Firstly, we want to use the TIM1 interrupt to change the duty cycle of TIM2. This will enable us to visualise the effects of a duty cycle that varies over time. 
@@ -367,7 +367,7 @@ This is usually not what we want, but for the rest of this tutorial, we'll actua
 
 Let's first take a brief look at what AM radio is. AM stands for Amplitude Modulation. This means we take a _carrier wave_ and combine it with some _information signal_, by changing the _amplification_ of the carrier wave over time.
 
-As always, [Wikipedia](https://en.wikipedia.org/wiki/Amplitude_modulation) has a great explanation, this figure (CC BY-SA 3.0) by Ivan Akira is an outstanding visualisation of the combination:
+As always, [Wikipedia](https://en.wikipedia.org/wiki/Amplitude_modulation) has a great explanation, and this figure (CC BY-SA 3.0) by Ivan Akira has an outstanding visualisation of how the combination of the signals works in practice:
 
 ![AM explanation]({{ 'assets/img/cubeide-timers/am-explain.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -493,9 +493,12 @@ And now update our main to toggle the PWM on and off at an appropriate speed:
   /* USER CODE END 3 */
 ```
 
-If you run and download this now, you will note that a tone at 440Hz is being generated through your radio!
+If you run and download this now, you will note that a tone at 440Hz is being generated through your radio! If you want an exercise for yourself, use the on-board button to turn the tone generator on and off and now you have a morse code transmitter!
 
-Now let us spin up a table of musical notes so we can play a song (remember that `delay_us` is still based on TIM4).
+# Let's play some music
+
+Extending our single-tone radio to let us spin up a table of musical notes (so we can play a song) is not particularly difficult from this point!
+Let's step through some more modifications (remember that `delay_us` is still based on TIM4).
 
 *In `main.c`, private user code section:*
 ```c
@@ -529,30 +532,30 @@ typedef enum {
 
 #define SCALE_LEN 12
 uint16_t note_delays_us[] = {
-		FREQ_TO_DELAY_US(220),
-		FREQ_TO_DELAY_US(233),
-		FREQ_TO_DELAY_US(247),
-		FREQ_TO_DELAY_US(262),
-		FREQ_TO_DELAY_US(277),
-		FREQ_TO_DELAY_US(294),
-		FREQ_TO_DELAY_US(311),
-		FREQ_TO_DELAY_US(330),
-		FREQ_TO_DELAY_US(349),
-		FREQ_TO_DELAY_US(370),
-		FREQ_TO_DELAY_US(392),
-		FREQ_TO_DELAY_US(415),
-		FREQ_TO_DELAY_US(440),
-		FREQ_TO_DELAY_US(466),
-		FREQ_TO_DELAY_US(494),
-		FREQ_TO_DELAY_US(523),
-		FREQ_TO_DELAY_US(554),
-		FREQ_TO_DELAY_US(587),
-		FREQ_TO_DELAY_US(622),
-		FREQ_TO_DELAY_US(659),
-		FREQ_TO_DELAY_US(698),
-		FREQ_TO_DELAY_US(740),
-		FREQ_TO_DELAY_US(784),
-		FREQ_TO_DELAY_US(831)
+	FREQ_TO_DELAY_US(220),
+	FREQ_TO_DELAY_US(233),
+	FREQ_TO_DELAY_US(247),
+	FREQ_TO_DELAY_US(262),
+	FREQ_TO_DELAY_US(277),
+	FREQ_TO_DELAY_US(294),
+	FREQ_TO_DELAY_US(311),
+	FREQ_TO_DELAY_US(330),
+	FREQ_TO_DELAY_US(349),
+	FREQ_TO_DELAY_US(370),
+	FREQ_TO_DELAY_US(392),
+	FREQ_TO_DELAY_US(415),
+	FREQ_TO_DELAY_US(440),
+	FREQ_TO_DELAY_US(466),
+	FREQ_TO_DELAY_US(494),
+	FREQ_TO_DELAY_US(523),
+	FREQ_TO_DELAY_US(554),
+	FREQ_TO_DELAY_US(587),
+	FREQ_TO_DELAY_US(622),
+	FREQ_TO_DELAY_US(659),
+	FREQ_TO_DELAY_US(698),
+	FREQ_TO_DELAY_US(740),
+	FREQ_TO_DELAY_US(784),
+	FREQ_TO_DELAY_US(831)
 };
 
 //Now we define note durations {Quarter, Eighth, Sixteenth, Thirtysecond; Half; Whole}
@@ -565,9 +568,9 @@ uint16_t note_delays_us[] = {
 
 //playNote struct provides the container to hold a given note in a song together
 typedef struct {
-	note_enum note;			//the note that is played
-	uint8_t scale_pos; 		//is it our upper scale or our lower scale (either 0 or 1)
-	uint16_t duration_ms;	//for how long will the note be played?
+	note_enum note;         //the note that is played
+	uint8_t scale_pos;      //is it our upper scale or our lower scale (either 0 or 1)
+	uint16_t duration_ms;   //for how long will the note be played?
 	uint16_t duration_rest; //after the note, how long should we rest for?
 } playNote;
 
