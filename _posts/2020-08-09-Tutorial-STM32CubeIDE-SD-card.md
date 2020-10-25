@@ -41,7 +41,7 @@ Today I will be using the following:
 
 * (Free) Ubuntu Linux 20.04 because developing on Linux makes me happy and Ubuntu makes it easy. Don't worry if you're on Windows, you should be able to follow along with roughly the same steps. 
 * (Free) STM32CubeIDE
-* ($27.26 from [Amazon Prime](https://amzn.to/2BDK6ID), $15.05 from [Amazon](https://amzn.to/3gEp6AA)) The `Nucleo-F303RE` development board.
+* ($19.95 from [Amazon Prime](https://amzn.to/2BDK6ID), $15.05 from [Amazon](https://amzn.to/3gEp6AA)) The `Nucleo-F303RE` development board.
 * ($5 from [Amazon Prime](https://amzn.to/3ik1wJV)) An SD card breakout board (comes in a pack of two).
 * ($6 from [Amazon Prime](https://amzn.to/33GRwXe)) Easy-to-use ribbon cables (there's more than you need here but they're handy to have around).
 * A micro SD card - note that *not all SD cards will work in SPI mode*. I have an Apacer one that works, and a Kingston one that does not. YMMV.
