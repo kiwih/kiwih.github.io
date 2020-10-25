@@ -4,7 +4,7 @@ title: 'Tutorial: Timers and PWM (and a cheeky AM radio transmission) using STM3
 subtitle: And a brief look at timer interrupts
 gh-repo: kiwih/cubeide-timers-demo
 gh-badge: [star, fork, follow]
-share-img: 
+share-img: assets/img/cubeide-timers/done.jpg
 tags: [tutorial, stm32, STM32CubeIDE, embedded, c]
 ---
 
@@ -701,6 +701,8 @@ Your browser does not support the video tag.
 </video>
 
 That brings us to the end of this tutorial. Feel free to chop and change the provided code as necessary - see what other functionality and/or songs you can produce!
+
+![Finished]({{ 'assets/img/cubeide-timers/done.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 # Conclusions
 
