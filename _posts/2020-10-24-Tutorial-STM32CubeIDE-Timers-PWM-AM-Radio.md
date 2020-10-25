@@ -206,11 +206,11 @@ It works in parallel to you at home, and should a fire require your attention, i
 In the timer block diagram the interrupt hardware is managed by the capture/compare registers and represented by the signals CCxI. 
 They have a few different operating modes, but in their simplest form you can consider them as "a value that the timer counts to". 
 
-When we configure them, we can set them up such that upon the timer reaching some value, it calls a function in our C program - which we term the _Interrupt Service Routine_ or ISR.
+When we configure them, we can set them up such that upon the timer reaching some value, it calls a function in our C program - which we term the _Interrupt Service Routine_, or _ISR_.
 
 Let's try an example. Let's have our timer trigger an interrupt every 500 milliseconds.
 Head back into the device configuration tool, and then back into the TIM1 configuration. 
-We'll need to change our Prescaler PSC from 71 (i.e. divide clock by 72) to 719 (i.e. divide clock by 720, each tick represents 10ms).
+We'll need to change our Prescaler PSC from 71 (i.e. divide clock by 72) to 719 (i.e. divide clock by 720, each tick representing 10 us).
 Then, we'll change the counter period to 49999 - which means an overall period of 50,000 cycles (like the prescaler, this number is 1 less than the executed value).
 
 ![Timer1 setting up for 500 millisecond period]({{ 'assets/img/cubeide-timers/tim1-config2.png' | relative_url }}){: .mx-auto.d-block :}
