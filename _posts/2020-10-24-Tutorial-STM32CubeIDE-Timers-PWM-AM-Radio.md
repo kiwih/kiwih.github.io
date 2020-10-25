@@ -495,7 +495,7 @@ And now update our main to toggle the PWM on and off at an appropriate speed:
 
 If you run and download this now, you will note that a tone at 440Hz is being generated through your radio!
 
-Now let us spin up a table of musical notes so we can play a song.
+Now let us spin up a table of musical notes so we can play a song (remember that `delay_us` is still based on TIM4).
 
 *In `main.c`, private user code section:*
 ```c
@@ -510,6 +510,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	. . .
 }
 
+//First we define our note frequencies and delays via a conversion function, an enum, and our look-up-table array.
 #define FREQ_TO_DELAY_US(x) (500000 / x)
 typedef enum {
 	note_a 		= 0,
@@ -554,74 +555,85 @@ uint16_t note_delays_us[] = {
 		FREQ_TO_DELAY_US(831)
 };
 
+//Now we define note durations {Quarter, Eighth, Sixteenth, Thirtysecond; Half; Whole}
 #define NOTE_LEN_Q 652
 #define NOTE_LEN_E (NOTE_LEN_Q/2)
 #define NOTE_LEN_S (NOTE_LEN_Q/4)
 #define NOTE_LEN_T (NOTE_LEN_Q/8)
 #define NOTE_LEN_H (NOTE_LEN_Q*2)
-#define NOTE_LEN_F (NOTE_LEN_Q*4)
+#define NOTE_LEN_W (NOTE_LEN_Q*4)
 
+//playNote struct provides the container to hold a given note in a song together
 typedef struct {
-	note_enum note;
-	uint8_t scale_pos; //either 0 or 1
-	uint16_t duration_ms;
-	uint16_t duration_rest; //if rest then don't play
+	note_enum note;			//the note that is played
+	uint8_t scale_pos; 		//is it our upper scale or our lower scale (either 0 or 1)
+	uint16_t duration_ms;	//for how long will the note be played?
+	uint16_t duration_rest; //after the note, how long should we rest for?
 } playNote;
 
+//A song made up as the struct
 playNote furEliseSong[] = {
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_d_sh, 1, NOTE_LEN_E, 0},
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_d_sh, 1, NOTE_LEN_E, 0},
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_E, 0},
-		{note_d, 1, NOTE_LEN_E, 0},
-		{note_c, 1, NOTE_LEN_E, 0},
-		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_d_sh, 1, NOTE_LEN_E, 0},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_d_sh, 1, NOTE_LEN_E, 0},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_E, 0},
+	{note_d, 1, NOTE_LEN_E, 0},
+	{note_c, 1, NOTE_LEN_E, 0},
+	{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
 
-		{note_c, 0, NOTE_LEN_E, 0},
-		{note_e, 0, NOTE_LEN_E, 0},
-		{note_a, 1, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
+	{note_c, 0, NOTE_LEN_E, 0},
+	{note_e, 0, NOTE_LEN_E, 0},
+	{note_a, 1, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
 
-		{note_e, 0, NOTE_LEN_E, 0},
-		{note_g_sh, 0, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_E, 0},
-		{note_c, 1, NOTE_LEN_Q, NOTE_LEN_E},
+	{note_e, 0, NOTE_LEN_E, 0},
+	{note_g_sh, 0, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_E, 0},
+	{note_c, 1, NOTE_LEN_Q, NOTE_LEN_E},
 
-		{note_e, 0, NOTE_LEN_E, 0},
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_d_sh, 1, NOTE_LEN_E, 0},
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_d_sh, 1, NOTE_LEN_E, 0},
-		{note_e, 1, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_E, 0},
-		{note_d, 1, NOTE_LEN_E, 0},
-		{note_c, 1, NOTE_LEN_E, 0},
-		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
+	{note_e, 0, NOTE_LEN_E, 0},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_d_sh, 1, NOTE_LEN_E, 0},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_d_sh, 1, NOTE_LEN_E, 0},
+	{note_e, 1, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_E, 0},
+	{note_d, 1, NOTE_LEN_E, 0},
+	{note_c, 1, NOTE_LEN_E, 0},
+	{note_a, 1, NOTE_LEN_Q, NOTE_LEN_E},
 
-		{note_c, 0, NOTE_LEN_E, 0},
-		{note_e, 0, NOTE_LEN_E, 0},
-		{note_a, 1, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
+	{note_c, 0, NOTE_LEN_E, 0},
+	{note_e, 0, NOTE_LEN_E, 0},
+	{note_a, 1, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_Q, NOTE_LEN_E},
 
-		{note_e, 0, NOTE_LEN_E, 0},
-		{note_c, 1, NOTE_LEN_E, 0},
-		{note_b, 1, NOTE_LEN_E, 0},
-		{note_a, 1, NOTE_LEN_Q, NOTE_LEN_Q}
+	{note_e, 0, NOTE_LEN_E, 0},
+	{note_c, 1, NOTE_LEN_E, 0},
+	{note_b, 1, NOTE_LEN_E, 0},
+	{note_a, 1, NOTE_LEN_Q, NOTE_LEN_Q}
 };
 
+//definitions finished, onto the functions to play the notes
+
+//tx_tone takes a delay time and a play time, and will switch on and off the carrier PWM signal according to those arguments.
+//this generates a tone in the PWM carrier in the AM frequency band.
 void tx_tone(uint32_t dTime, uint32_t playTime) {
 	uint32_t end = HAL_GetTick() + playTime;
 
-  while (end > HAL_GetTick()) {
-	  delay_us(dTime);
-	  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-	  delay_us(dTime);
-	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
-  }
+  	while (end > HAL_GetTick()) {
+	  	delay_us(dTime);
+	  	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+	  	delay_us(dTime);
+	  	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+  	}
 }
 
+//tx_note takes a playNote structure and does the conversion into the arguments that tx_tone will take.
+//firstly it transmits the note frequency (using the note_delay_us look up table) for 50 milliseconds less than requested,
+//then it transmits "silence" for 50 milliseconds (this gives a gap between notes).
+//Finally, if the playNote structure requests a further rest, it will extend the rest by that much amount of time.
 void tx_note(playNote *n) {
 	tx_tone(note_delays_us[n->note + SCALE_LEN * n->scale_pos], n->duration_ms-50);
 	tx_tone(1, 50);
@@ -632,11 +644,21 @@ void tx_note(playNote *n) {
 /* USER CODE END 0 */
 ```
 
-There's a lot going on here, but rest assured none of it is complicated. We create a look up table of musical note frequency delays, then define some musical note lengths.
-We then create a structure which will hold notes as they are played in a song, and finally define an array which is our song.
-We then create a function to transmit a raw tone which by rapidly switches the PWM from TIM3 on and off, as we did in the earlier example.
-The only difference is we now do this for some number of nanoseconds.
-Finally, we create a function to transmit the note structure by translating it onto the transmit tone function.
+There's a lot going on here, but rest assured none of it is complicated. Let's briefly talk about the musical theory.
+
+Firstly, as we discussed earlier, each note has a defined frequency (i.e. note A being 440 Hz). We showed in the previous example how we use the formula 500000/freq to convert it into a toggling delay for code that rapidly turns the PWM (carrier signal) on and off to generate the note at that tone.
+So, our first job is to define some notes and their frequencies. I do this with a `#define` that contains the function to convert frequency to delay; a `note_enum` to hold the different note names, and a lookup table `note_delays` which has elements corresponding to the values in the enum. 
+As I want to have two scales of notes, the `note_delays` array is twice as long as the `note_enum` and I define the length of the scale to be 12.
+
+Musical theory also says that notes have _durations_, i.e. for how long they are played. These all bear relation to one another. I define the Quarter note as the base (as it is the most common note) to be 652 milliseconds, meaning we're playing at about 92 beats per minute. 
+
+I then define a structure `playNote` as a container to hold musical notes from a song. 
+They have every piece of information they need bundled together: the note enum, the scale position, and the duration.
+I also add as an element to the struct `duration_rest`, which can be used to add a musical _rest_ after the note has finished. 
+
+We then move onto two functions. 
+The first, `tx_tone`, works as our earlier example did and simply switches the PWM carrier signal on and off rapidly according to the note frequency delay.
+The second, `tx_note`, takes a pointer to a `playNote` structure and does the translation into the format/arguments that `tx_tone` requires.
 
 And in the main loop,
 
@@ -670,12 +692,15 @@ And in the main loop,
   /* USER CODE END 3 */
 ```
 
-That's it, we're good to go. I listened using my RTL-SDR to visualize it on the PC.
+That's it, we're good to go. Compile and run, and you should hear the first few bars of Fur Elise through your radio! 
+I took a recording using my RTL-SDR to demonstrate:
 
 <video width='100%' controls>
   <source src="{{ '/assets/vid/cubeide-timers/fur-elise.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
+
+That brings us to the end of this tutorial. Feel free to chop and change the provided code as necessary - see what other functionality and/or songs you can produce!
 
 # Conclusions
 
