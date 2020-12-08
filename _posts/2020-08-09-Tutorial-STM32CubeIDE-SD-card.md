@@ -279,8 +279,10 @@ If not, open up `user_diskio_spi.c` and just make sure these prescalar values wo
 
 *in `user_diskio_spi.c:`*
 ```c
-#define FCLK_SLOW() { SD_SPI_HANDLE.Instance->I2SPR = 128; }	/* Set SCLK = slow, approx 280 KBits/s*/
-#define FCLK_FAST() { SD_SPI_HANDLE.Instance->I2SPR = 8; }	/* Set SCLK = fast, approx 4.5 MBits/s */
+//(Note that the _256 is used as a mask to clear the prescalar bits as it provides binary 111 in the correct position)
+
+#define FCLK_SLOW() { MODIFY_REG(SD_SPI_HANDLE.Instance->CR1, SPI_BAUDRATEPRESCALER_256, SPI_BAUDRATEPRESCALER_128); }	/* Set SCLK = slow, approx 280 KBits/s*/
+#define FCLK_FAST() { MODIFY_REG(SD_SPI_HANDLE.Instance->CR1, SPI_BAUDRATEPRESCALER_256, SPI_BAUDRATEPRESCALER_8); }	/* Set SCLK = fast, approx 4.5 MBits/s */
 ```
 
 We're ready to go!
