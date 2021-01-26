@@ -9,6 +9,8 @@ tags: [pico, thonny, embedded, micropython]
 A few days ago the Raspberry Pi foundation made the surprise announcement that they'd had their own silicon produced in the form of a dual-core ARM Cortex M0+ microcontroller. 
 I say "surprising" for a number of reasons: (1) until now, Raspberry Pi have focused on their eponymous single-board computer series, (2) the chip has some interesting and unusual hardware (no on-chip flash paired with an exuberant amount of SRAM and a strange new I/O peripheral they call "Programmable I/O", and (3) the first dev board they'd produced was actually available in heaps of different websites all at once on day 1!
 
+![Pico]({{ 'assets/img/pico-first/pico-pcb.png' | relative_url }}){: .mx-auto.d-block :}
+
 I bought a couple immediately - the $4 pricetag for a USB-ready dev board is pretty competitive in this space.
 
 ## Hey, is this blog post an advertisment?
@@ -19,13 +21,14 @@ Also, while I could post an Amazon affiliate link for purchase I won't, since th
 
 ## Moving on
 
-Before the boards arrived, I started looking up the documentation, and I was again pleasantly surprised. The chip (RP2040) and the dev kit have got some extremely high quality accompanying datasheets and tutorials. You can check it all out on the [Getting started](https://www.raspberrypi.org/documentation/pico/getting-started/) page, which might provide the best welcome experience to a microcontroller dev board I've ever had.
+Before the boards arrived, I started looking up the documentation, and I was again pleasantly surprised. The chip (RP2040) and the dev kit have got some extremely high quality accompanying datasheets and tutorials. You can check it all out on their [Getting started](https://www.raspberrypi.org/documentation/pico/getting-started/) page, which might provide the best welcome experience to a microcontroller dev board I've ever had.
 
 That said, I did have one apprehension: I am very much a C programmer (just check out the rest of this blog) and the board seemed to be a little more geared towards MicroPython rather than C. 
 While you can program/flash the board via the on-board USB connector, it connects only to a very simple bootloader that doesn't provide any debug facilities (compared to say an STM32 Nucleo, which has a whole separate programmer on the development boards so that you can program+debug all with the one cable). 
-So, while the board does have a debugging facility, wiring to it is a little gnarly, so I've put the whole C SDK aside for now (I'll save up my experience for a second blog post) and I decided to just focus on the MicroPython side of things. I figured this was a nice "pure" experience anyway, as I've literally never used MicroPython before.
 
-Since the instructions are so detailed, I'll only provide a summary of what I had to do here.
+If you want a more normal download/debugging experience, the pins are there but the official guide is to use a Raspberry Pi as a programmer and it looks a little involved. I decided to instead put the whole C SDK aside for now (I'll save up my experience for a second blog post) and instead just try out the MicroPython side of things. I figured this was a nice "pure" experience anyway, as I've literally never used MicroPython before.
+
+Since [the instructions](https://datasheets.raspberrypi.org/pico/sdk/pico_python_sdk.pdf) are so detailed, I'll only provide a summary of what I had to do here.
 1. Download the compiled MicroPython `uf2` program.
 2. Connect the Pico to the computer (this felt weird since there's no power LED on the board, there's no immediate feedback until the computer says a mass storage device is ready).
 3. Copy over the program as if it was a normal USB drive.
@@ -37,7 +40,7 @@ Yep, it really was as easy as that. I fired up PuTTY and pointed it at the new C
 
 Time to try something out, so I typed in a wee program from the guide:
 
-*Blink an LED, from https://github.com/raspberrypi/pico-micropython-examples/blob/master/blink/blink.py*
+*Blink an LED, from [here](https://github.com/raspberrypi/pico-micropython-examples/blob/master/blink/blink.py)*
 ```python
 from machine import Pin, Timer
 
@@ -61,8 +64,12 @@ Well, that was easy!
 
 ## Thonny and blinkenlights?
 
-At this point I decided two things. (1) I wanted to use more than just the on-board LED, and (2) I didn't want to have to type everything into PuTTY. So, I switched over to Ubuntu and installed Thonny (`sudo pip3 install thonny`). 
-Thonny is a neat little IDE for Python and MicroPython, with 'little' being the operative word. It reminds me a lot of the Arduino IDE. Here's an example:
+At this point I decided two things. (1) I wanted to use more than just the on-board LED, and (2) I didn't want to have to type everything into PuTTY. 
+The guide recommends either using vscode with a bunch of plugins, or Thonny. I hadn't heard of Thonny before so I decided to try it out. 
+
+It seems that Thonny is a neat little IDE for Python and MicroPython, with 'little' being the operative word. It reminds me a lot of the Arduino IDE. Installing was easy (`sudo pip3 install thonny`). 
+
+Here's what it looks like:
 
 ![Thonny]({{ 'assets/img/pico-first/thonny-1.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -86,7 +93,7 @@ To summarise the instructions:
 3. ...?
 4. Profit
 
-*Chopped and changed from https://github.com/raspberrypi/pico-micropython-examples/blob/master/i2c/1106oled/i2c_1106oled_using_defaults.py*
+*Chopped and changed, original [here](https://github.com/raspberrypi/pico-micropython-examples/blob/master/i2c/1106oled/i2c_1106oled_using_defaults.py)*
 ```python
 from machine import Pin, Timer, I2C
 from ssd1306 import SSD1306_I2C
@@ -128,6 +135,6 @@ And the output:
 
 ## Final remarks (for now)
 
-I honestly did not expect this board - and MicroPython - to be such a breath of fresh air. It was actually joyful to play with, a feeling I haven't truly felt since I first tried out an Arduino (I had been coming from programming in PIC assembly with a socket programmer). I might be getting ahead of myself but the Raspberry Pi Pico honestly feels like the next evolutionary step for hobbyist microcontroller programming. The quality of documentation and examples are outstanding, and every step that I followed _worked_, which isn't something I get to say every day. I am very interested to see where the Raspberry Pi Foundatation take this in future.
+I honestly did not expect this board - and MicroPython - to be such a breath of fresh air. It was actually joyful to play with, a feeling I haven't truly felt since I first tried out an Arduino, a long time ago (I had been coming from programming in PIC assembly with a socket programmer). I might be getting ahead of myself but the Raspberry Pi Pico honestly feels like the next evolutionary step for hobbyist microcontroller programming. The quality of documentation and examples are outstanding, and every step that I followed _worked_, which isn't something I get to say every day. I am very interested to see where the Raspberry Pi Foundatation take this in future.
 
-In my next blog post, I'll talk about using the PIO and I'll also have a go at getting the C setup running. Maybe I won't be so positive then - the steps look quite fiddly compared to the Python ones.
+In my next blog post, I'll talk about using the PIO, and I'll also have a go at getting the C setup running. We'll see if I stay so positive - the steps look quite fiddly compared to the Python ones, but I remain optimistic!
