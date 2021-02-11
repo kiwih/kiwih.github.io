@@ -3,7 +3,7 @@ layout: post
 title: 'Raspberry Pi Pico: First Impressions'
 subtitle: This + MicroPython = an absolute joy
 share-img: assets/img/pico-first/pico.png
-tags: [pico, thonny, embedded, micropython]
+tags: [rpi pico, rp2040, thonny, embedded, micropython]
 ---
 
 A few days ago the Raspberry Pi foundation made the surprise announcement that they'd had their own silicon produced in the form of a dual-core ARM Cortex M0+ microcontroller. 
