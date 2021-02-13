@@ -45,7 +45,7 @@ Overall, I ended up with the following shortlist:
 
 1. Two general purpose LEDs and a power LED _(Rationale: I never regret having the ability to blink LEDs when getting started with a new chip, and the Pico module itself has no power LED)_.
 2. Three general purpose switches and a reset switch _(Rationale: Similar to the above, switches are general purpose and very handy for most development boards, and the Pico module itself has no reset switch)_.
-3. An SSD1306 OLED _(Rationale: Screens are both fun to play with _and_ a good way to test the performance of a chip/your software skills)_.
+3. An SSD1306 OLED _(Rationale: Screens are both fun to play with and a good way to test the performance of a chip/your software skills)_.
 4. An AT24C08 EEPROM _(Rationale: Harder to justify for a general purpose board, especially when the Pico has 2MB of onboard flash compared to the 1KB of potential EEPROM, but I have a _ton_ of these floating around in DIP-8 packages which I purchased for 10 cents a chip in a fire sale on Digikey. Plus, the screen is already using one of the I2C busses so they can share)_.
 5. An LDR on one of the ADC lines _(Rationale: Gives me an easy-to-play-around-with analog input)_.
 6. Breakout pins for an SPI, arranged in the shape of an SD card module _(Rationale: I have 24 of these modules that I was given once, and I have to use them up somehow)_.
