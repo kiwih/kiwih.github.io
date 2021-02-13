@@ -150,4 +150,4 @@ Anyway, I'm pretty happy with it!
 
 ## The design files
 
-If you want to manufacture this board yourself, feel free! [On my Github](https://github.com/kiwih/kiwikit-pico-baseboard) I have released these files under the open hardware license, and I encourage usage / modification / pull requests. Enjoy (if you want)!
+If you want to manufacture this board yourself, feel free! [On my Github](https://github.com/kiwih/kiwikit-pico-baseboard) I have released these files under the open MIT license, and I encourage usage / modification / pull requests. Enjoy (if you want)!
