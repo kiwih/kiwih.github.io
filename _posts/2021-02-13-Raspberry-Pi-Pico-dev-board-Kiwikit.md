@@ -48,8 +48,8 @@ Overall, I ended up with the following shortlist:
 3. An SSD1306 OLED _(Rationale: Screens are both fun to play with and a good way to test the performance of a chip/your software skills)_.
 4. An AT24C08 EEPROM _(Rationale: Harder to justify for a general purpose board, especially when the Pico has 2MB of onboard flash compared to the 1KB of potential EEPROM, but I have a _ton_ of these floating around in DIP-8 packages which I purchased for 10 cents a chip in a fire sale on Digikey. Plus, the screen is already using one of the I2C busses so they can share)_.
 5. An LDR on one of the ADC lines _(Rationale: Gives me an easy-to-play-around-with analog input)_.
-6. Breakout pins for an SPI, arranged in the shape of an SD card module _(Rationale: I have 24 of these modules that I was given once, and I have to use them up somehow)_.
-7. Breakout pins for an I2C, arranged in the shape of an MP-6050 accelerometer/gyroscope module _(Rationale: I want to play with one of these modules)_.
+6. Breakout pins for an SPI, arranged in the order present on cheap SD card modules _(Rationale: I have 24 of these modules that I was given once, and I have to use them up somehow)_.
+7. Breakout pins for an I2C, arranged in the order present of cheap MP-6050 accelerometer/gyroscope modules _(Rationale: I want to play with one of these modules)_.
 8. Breakout pins for the other 2 ADCs, with optional pullups _(Rationale: Flexible and in a useful form factor: I have a couple of thermistors on long cables that could be plugged in)_.
 9. Breakout for every other pin _(Rationale: don't want to waste anything - gotta send them somewhere)_.
 10. Breakout for power _(Rationale: Flexibile power sinking and sourcing options)_.
