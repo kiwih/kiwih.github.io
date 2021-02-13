@@ -2,15 +2,15 @@
 layout: post
 title: 'Developing a basic development board for Raspberry Pi Pico modules'
 subtitle: Because breadboarding is a pain and 2-layer PCBs are cheap
-share-img: 
-gh-repo: kiwih/
+share-img: assets/img/pico-kiwikit/pcb-running.png
+gh-repo: kiwih/kiwikit-pico-baseboard
 gh-badge: [star, fork, follow]
 tags: [rpi pico, rp2040, embedded, pcb]
 ---
 
 Recently I purchased some Raspberry Pi Pico modules. This is blogpost #2 on the subject, where I will walk through a basic development board that I designed to be used to familiarise myself with the new RP2040 silicon. 
 
-In the rest of the blog post I'll have a yarn. If you're just interested in the Kicad files, you can get them [here]().
+In the rest of the blog post I'll have a yarn. If you're just interested in the Kicad files, you can get them [here](https://github.com/kiwih/kiwikit-pico-baseboard).
 
 ## The Raspberry Pi Pico
 
@@ -62,76 +62,90 @@ This isn't meant to be a tutorial for Kicad, so I'll just go through a few desig
 
 ### In the schematic
 
-* Just as you comment code, you can also comment schematics! Too often I am going through circuits wondering WTF something is doing. So, to practice what I preach, I usually have comments in my PCBs.
+Just as you can have well-organised and well-commented code, you can also have well-organised and well-commented schematics! Too often I am going through circuits wondering WTF something is doing. So, to practice what I preach, I try to keep my schematics neat and tidy, and put text notations in where helpful. Here's my full schematic:
 
-(Photo of comments)
+![Kiwikit schematic]({{ 'assets/img/pico-kiwikit/kiwikit-full-schematic.png' | relative_url }}){: .mx-auto.d-block :}
 
-* Standard layout for switch debouncing. These values are all quite standard, but can be changed to anything similar without any risks.
+You can see that doing layouts like this also really shows off how simple everything is. Here's a couple of quick design decisions:
 
-(Photo of debounce)
+* I used a standard layout for switch debouncing. These values are all pretty flexible.
 
-* 10K pullups on the I2C line. I used these since the SSD1306 modules have inconsistent pull-ups - sometimes they are fitted, sometimes they aren't (such is the way of aliexpress). If we use 10K, additional pull-ups (which will probably also be 10K) won't bring the pull-up resistance too low. An alternative would have been to jumper these (I've done that in the past), but on previous dev boards I found I was never removing the jumpers.
+![Debounce]({{ 'assets/img/pico-kiwikit/debounce.png' | relative_url }}){: .mx-auto.d-block :}
 
-(Photo of I2C bus)
+Note that the `?` are present because the parts are missing Vendor codes - this is because they're going to be supplied from my parts bin :)
+
+* I have 10K pullups on the I2C line. 
+
+![i2c-pullups]({{ 'assets/img/pico-kiwikit/i2c-pullups.png' | relative_url }}){: .mx-auto.d-block :}
+
+I used these since the SSD1306 modules have inconsistent pull-ups - sometimes they are fitted, sometimes they aren't (such is the way of aliexpress). If we use 10K, additional pull-ups (which will probably also be 10K) won't bring the pull-up resistance too low. An alternative would have been to jumper these (I've done that in the past), but on previous dev boards I found I was never removing the jumpers.
 
 * 5K pullups on the LDR and other two ADCs (with jumpers to make them optional). The LDRs I have range from 5-10K, so 5K gives a reasonable range in sensed voltages when constructed as a voltage divider.
 
-(Photo of ADCs)
+![ADC-pullups]({{ 'assets/img/pico-kiwikit/adc-pullups.png' | relative_url }}){: .mx-auto.d-block :}
 
-* Jumpers on the EEPROM - WP (Write protect) and A2 (Second bit of I2C address). It's tenuous, but if a different screen was in use in future that conflicted with the EEPROM address, the A2 jumper could be used to move the EEPROM slightly.
+* Jumpers on the EEPROM - WP (Write protect) and A2 (Second bit of I2C address). 
+
+![EEPROM]({{ 'assets/img/pico-kiwikit/eeprom.png' | relative_url }}){: .mx-auto.d-block :}
+
+It's tenuous, but if a different screen was in use in future that conflicted with the EEPROM address, the A2 jumper could be used to move the EEPROM slightly.
 The WP pin gives us the ability to disable writes to the EEPROM, should such a situation ever be useful.
-
-(Photo of EEPROM)
 
 ### In the layout
 
 This is a pretty subjective area and design choices can be a little harder to justify. Technologically, I went for a 2 layer board (cheap), and 10cm x 10cm (since that gave me more space for the larger through-hole components).
-Since I was going with JLCPCB for production, I made sure that the board fit their design requirements. I actually went far too conservative, setting my minimum track width to 0.3mm and via hole size to ?????
+Since I was going with JLCPCB for production, I made sure that the board fit their design requirements. I actually went far too conservative, setting my minimum track width to 0.3mm and via hole size to 0.4mm.
 
-Anyway, any developer will tell you that the most important thing is to make sure your corners are rounded since PCBs can be sharp.
+Anyway, any developer will tell you that the most important thing is to make sure your corners are rounded since PCBs can be sharp, 
 
-(Photo of corners)
+![Rounded corner]({{ 'assets/img/pico-kiwikit/rounded-corner.png' | relative_url }}){: .mx-auto.d-block :}
 
-I made a custom footprint for the Pico module based on [the datasheet](???). Since I want to keep in the spirit of breadboarding, I assume that the debugging pins on the modules are either not soldered or are soldered "up", so I didn't include them in the footprint (for the same reason, they also weren't included in the schematic). 
+(It also helps to add screwholes for mounting!)
 
-(Photo of footprint)
+I made a custom footprint for the Pico module based on [the Pico's datasheet](https://datasheets.raspberrypi.org/pico/pico-datasheet.pdf), Chapter 2. Since I want to keep in the spirit of breadboarding, I assume that the debugging pins on the modules are either not soldered or are soldered "up", so I didn't include them in the footprint (for the same reason, they also weren't included in the schematic). The footprint, embedded in the circuit, is depicted here:
+
+![Custom Pico Footprint]({{ 'assets/img/pico-kiwikit/custom-footprint.png' | relative_url }}){: .mx-auto.d-block :}
 
 I went for an assymetric look, with the Pico off to the top-left, and the SSD1306 down at the bottom-right. The AT24 is neatly placed above the SSD1306. Assuming that the buttons would be used in tandem with the screen, the three general purpose buttons are placed directly beneath, with their debouncing resistors and caps placed in neat lines off to the side. The reset button is in the top right (someone called me out on this, but I like my reset buttons to be distinct from other buttons - they have quite different purposes!). The LDR is placed in the middle of the top of the board, and the power LED is on the far left. Other support components are arranged neatly into lines, and finally the breakout pins are organised down each side of the board.
 
-(Photo of overall layers)
+![Full layout]({{ 'assets/img/pico-kiwikit/full-layout.png' | relative_url }}){: .mx-auto.d-block :}
 
-Overall routing was a breeze. When you find yourself routing a microcontroller (or a microcontroller module), remember that peripheral pins often have more than one option for their location! As such, you can often move where things are assigned to simplify the routing process / untangle any messes. 
+Overall routing was a breeze. Almost every trace could be kept on the top of the board, leaving the bottom layer as an almost completely unbroken ground plane, which is great for signal integrity. 
 
-(Photo of pinouts with some arrows)
+A top tip: when you find yourself routing a microcontroller (or a microcontroller module), remember that peripheral pins often have more than one option for their location! As such, you can often move where things are assigned to simplify the routing process / untangle any messes. E.g., from the manual linked above (CC-BY-ND)
+
+![Pico pinout]({{ 'assets/img/pico-kiwikit/pico-pinout.png' | relative_url }}){: .mx-auto.d-block :}
+
+We used I2C1 for the SSD1306/EEPROM - look how many different places we could have routed that!
 
 ### 3D modelling
 
 I always like to make sure I have 3D models of all the components so that I can visualize how it will all fit together. It's a nice sanity check. Kicad makes this easy, and the 3D model viewer can read in 3D models for your components and place them where they should be.
 
-(model photos)
+![Kiwikit render]({{ 'assets/img/pico-kiwikit/render.png' | relative_url }}){: .mx-auto.d-block :}
 
 ## Getting it manufactured
 
-I've used a few of the different online manufacturers, but the one I usually go back to is JLCPCB, so that's who I went with this time (Note, not an advert). Their quality is pretty good, and they have [nice guides for Kicad](???) which I appreciate.
+I've used a few of the different online manufacturers, but the one I usually go back to is JLCPCB, so that's who I went with this time (Note, not an advert). Their quality is pretty good, and they have [nice guides for Kicad](https://support.jlcpcb.com/article/102-kicad-515---generating-gerber-and-drill-files) which I appreciate.
 
 Following the steps, I produced and uploaded a gerber zip, paid the $2 for manufacture (for 10! wow!) and the $15 for shipping (sad US-China trade war / covid noises), and 2 weeks later they arrived!
 
 _NOTE: Photos in this section are of the V0.1 board compared with the V0.2 designs above. The changes were cosmetic (silk screen), and I added an extra resistor to each debouncer._
 
-(Photos of boards)
+![PCB]({{ 'assets/img/pico-kiwikit/pcb-empty.png' | relative_url }}){: .mx-auto.d-block :}
 
 Now I had to solder them up:
 
-(Photos soldered up)
+![PCBs soldered]({{ 'assets/img/pico-kiwikit/pcbs-soldered.png' | relative_url }}){: .mx-auto.d-block :}
 
 And test them!
 
-(Test photo)
+![PCB running]({{ 'assets/img/pico-kiwikit/pcb-running.png' | relative_url }}){: .mx-auto.d-block :}
 
-And that's that! I wrote up a quick MicroPython script to test everything out, and got a resounding pass in every category - well, except for the lower green LED, which is _really dim_ for some reason (thanks component bin / quality testing before soldering things on). 
+And that's that! I wrote up a quick MicroPython script to test everything out, and got a resounding pass in every category - well, except for the lower green general purpose LED, which is _really dim_ for some reason (thanks component bin / quality testing before soldering things on). 
 
 Anyway, I'm pretty happy with it! 
 
 ## The design files
 
-If you want to manufacture this board yourself, feel free! [On my Github](...) I have released these files under the open hardware license, and I encourage usage / modification / pull requests. Enjoy (if you want)!
+If you want to manufacture this board yourself, feel free! [On my Github](https://github.com/kiwih/kiwikit-pico-baseboard) I have released these files under the open hardware license, and I encourage usage / modification / pull requests. Enjoy (if you want)!
