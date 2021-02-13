@@ -18,11 +18,13 @@ The Pico module has a very accessible footprint from a hobbyist point of view. W
 
 ![Pico]({{ 'assets/img/pico-first/pico-pcb.png' | relative_url }}){: .mx-auto.d-block :}
 
-I began by building on a breadboard, with echoes of nostalgia coming from my memories (I began my whole embedded journey as a nerdy teenager playing with PIC microcontrollers and breadboards). For example, this board, one of my first:
+I began by building on a breadboard, with echoes of nostalgia coming from my memories (I began my whole embedded journey as a nerdy teenager playing with PIC microcontrollers and breadboards). 
+
+I also played with a lot of veroboard. A lot. For example, this board, one of my first:
 
 ![Teen dev board]({{ 'assets/img/pico-kiwikit/pic-dev-board-teen.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-Actually, I shouldn't lie, it was only 2019 that I was still having fun building with PICs... and the PIC16F877A actually has the same footprint as a Pico module! 
+Actually, I shouldn't lie, it was only 2019 that I was still having fun building with PICs and playing with veroboard... and the PIC16F877A actually has the same footprint as a Pico module! 
 
 ![Recent dev board]({{ 'assets/img/pico-kiwikit/pic-dev-board-recent.jpg' | relative_url }}){: .mx-auto.d-block :}
 
@@ -41,16 +43,16 @@ I decided quickly that I wanted to emulate the fun that I had growing up with DI
 I also wanted to take the opportunity to clear out some of my component drawers rather than buy any components (how's that for design space exploration). This meant I had to balance the axis of design complexity against dev kit usefulness.
 Overall, I ended up with the following shortlist:
 
-1. Two general purpose LEDs and a power LED (Rationale: I never regret having the ability to blink LEDs when getting started with a new chip, and the Pico module itself has no power LED).
-2. Three general purpose switches and a reset switch (Rationale: Similar to the above, switches are general purpose and very handy for most development boards, and the Pico module itself has no reset switch).
-3. An SSD1306 OLED (Rationale: Screens are both fun to play with _and_ a good way to test the performance of a chip/your software skills).
-4. An AT24C08 EEPROM (Rationale: Harder to justify for a general purpose board, especially when the Pico has 2MB of onboard flash compared to the 1KB of potential EEPROM, but I have a _ton_ of these floating around in DIP-8 packages which I purchased for 10 cents a chip in a fire sale on Digikey. Plus, the screen is already using one of the I2C busses so they can share).
-5. An LDR on one of the ADC lines (Rationale: Gives me an easy-to-play-around-with analog input).
-6. Breakout pins for an SPI, arranged in the shape of an SD card module (Rationale: I have 24 of these modules that I was given once, and I have to use them up somehow).
-7. Breakout pins for an I2C, arranged in the shape of an MP-6050 accelerometer/gyroscope module (Rationale: I want to play with one of these modules).
-8. Breakout pins for the other 2 ADCs, with optional pullups (Rationale: Flexible and in a useful form factor: I have a couple of thermistors on long cables that could be plugged in)
-9. Breakout for every other pin (Rationale: don't want to waste anything - gotta send them somewhere).
-10. Breakout for power (Rationale: Flexibile power sinking and sourcing options).
+1. Two general purpose LEDs and a power LED _(Rationale: I never regret having the ability to blink LEDs when getting started with a new chip, and the Pico module itself has no power LED)_.
+2. Three general purpose switches and a reset switch _(Rationale: Similar to the above, switches are general purpose and very handy for most development boards, and the Pico module itself has no reset switch)_.
+3. An SSD1306 OLED _(Rationale: Screens are both fun to play with _and_ a good way to test the performance of a chip/your software skills)_.
+4. An AT24C08 EEPROM _(Rationale: Harder to justify for a general purpose board, especially when the Pico has 2MB of onboard flash compared to the 1KB of potential EEPROM, but I have a _ton_ of these floating around in DIP-8 packages which I purchased for 10 cents a chip in a fire sale on Digikey. Plus, the screen is already using one of the I2C busses so they can share)_.
+5. An LDR on one of the ADC lines _(Rationale: Gives me an easy-to-play-around-with analog input)_.
+6. Breakout pins for an SPI, arranged in the shape of an SD card module _(Rationale: I have 24 of these modules that I was given once, and I have to use them up somehow)_.
+7. Breakout pins for an I2C, arranged in the shape of an MP-6050 accelerometer/gyroscope module _(Rationale: I want to play with one of these modules)_.
+8. Breakout pins for the other 2 ADCs, with optional pullups _(Rationale: Flexible and in a useful form factor: I have a couple of thermistors on long cables that could be plugged in)_.
+9. Breakout for every other pin _(Rationale: don't want to waste anything - gotta send them somewhere)_.
+10. Breakout for power _(Rationale: Flexibile power sinking and sourcing options)_.
 
 Having sorted this exhaustive list, I now got onto the design stage!
 
@@ -72,7 +74,7 @@ You can see that doing layouts like this also really shows off how simple everyt
 
 ![Debounce]({{ 'assets/img/pico-kiwikit/debounce.png' | relative_url }}){: .mx-auto.d-block :}
 
-Note that the `?` are present because the parts are missing Vendor codes - this is because they're going to be supplied from my parts bin :)
+Note that the question marks (`?`) are present because the parts are missing Vendor codes - this is because they're going to be supplied from my parts bin :)
 
 * I have 10K pullups on the I2C line. 
 
@@ -112,7 +114,7 @@ I went for an assymetric look, with the Pico off to the top-left, and the SSD130
 
 Overall routing was a breeze. Almost every trace could be kept on the top of the board, leaving the bottom layer as an almost completely unbroken ground plane, which is great for signal integrity. 
 
-A top tip: when you find yourself routing a microcontroller (or a microcontroller module), remember that peripheral pins often have more than one option for their location! As such, you can often move where things are assigned to simplify the routing process / untangle any messes. E.g., from the manual linked above (CC-BY-ND)
+A top tip: when you find yourself routing a microcontroller (or a microcontroller module), remember that peripheral pins often have more than one option for their location! As such, you can often move where things are assigned to simplify the routing process / untangle any messes. E.g., from the manual linked above (Figure Copyright 2020 Raspberry Pi (Trading) Ltd.CC-BY-ND).
 
 ![Pico pinout]({{ 'assets/img/pico-kiwikit/pico-pinout.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -136,11 +138,11 @@ _NOTE: Photos in this section are of the V0.1 board compared with the V0.2 desig
 
 Now I had to solder them up:
 
-![PCBs soldered]({{ 'assets/img/pico-kiwikit/pcbs-soldered.png' | relative_url }}){: .mx-auto.d-block :}
+![PCBs soldered]({{ 'assets/img/pico-kiwikit/pcbs-soldered.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 And test them!
 
-![PCB running]({{ 'assets/img/pico-kiwikit/pcb-running.png' | relative_url }}){: .mx-auto.d-block :}
+![PCB running]({{ 'assets/img/pico-kiwikit/pcb-running.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 And that's that! I wrote up a quick MicroPython script to test everything out, and got a resounding pass in every category - well, except for the lower green general purpose LED, which is _really dim_ for some reason (thanks component bin / quality testing before soldering things on). 
 
