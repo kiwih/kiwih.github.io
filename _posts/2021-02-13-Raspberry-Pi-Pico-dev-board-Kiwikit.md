@@ -132,7 +132,7 @@ I've used a few of the different online manufacturers, but the one I usually go 
 
 Following the steps, I produced and uploaded a gerber zip, paid the $2 for manufacture (for 10! wow!) and the $15 for shipping (sad US-China trade war / covid noises), and 2 weeks later they arrived!
 
-_NOTE: Photos in this section are of the V0.1 board compared with the V0.2 designs above. The changes were cosmetic (silk screen), and I added an extra resistor to each debouncer._
+_NOTE: Photos in this section are of the V0.1 board compared with the V0.3 designs above. The changes were cosmetic (silk screen), and I added an extra resistor to each debouncer._
 
 ![PCB]({{ 'assets/img/pico-kiwikit/pcb-empty.png' | relative_url }}){: .mx-auto.d-block :}
 
