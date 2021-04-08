@@ -446,4 +446,6 @@ If so, great! If not, rats.
 
 If any numerical errors are given you can convert them into their meaning from the look up table in `Middlewares\Third_Party\FatFS\src\ff.h`. You should double check your wiring as well. Sadly, not all SD cards will work over SPI - I wasted a good few hours with a Kingston SD card before changing to an Apacer one that just worked instantly. Good luck!
 
+Also note that if you're using this process with your own custom circuit, you may need pull-up resistors on the SCK, MISO, and MOSI lines. The SD card module I used in this post includes them internally - if you're wiring your own design, you might find you need to add them. You can also consider enabling the internal pull up resistors. More details are included [here](https://github.com/kiwih/cubeide-sd-card/issues/2).
+
 If you would like the complete code that accompanies this blog post, it is made available in the associated Github repository [here](https://github.com/kiwih/cubeide-sd-card).
