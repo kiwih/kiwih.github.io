@@ -19,15 +19,15 @@ This blog post is a presentation of how we derived the Section III in the paper 
 
 # The idea
 
-Lately our research group has been interested in 3D printer cybersecurity. I had begun to wonder if there was a way we could hide a Trojan inside their firwmare in a way that wasn't so obvious. After disassembling two commercially available printers that we had access to, we determined that they both were running their firmware on top of low-cost AVR microcontrollers, and interestingly, neither AVR had the JTAG port exposed. Instead, they had exposed the SPI ISP programming port and the UART (bridged to USB). We generalised these to the following architecture diagram:
+Lately our research group has been interested in 3D printer cybersecurity. I had begun to wonder if there was a way we could hide a Trojan inside their firmware in a way that wasn't so obvious. After disassembling two commercially available printers that we had access to, we determined that they both were running their firmware on top of low-cost AVR microcontrollers, and interestingly, neither AVR had the JTAG port exposed. Instead, they had exposed the SPI ISP programming port and the UART (bridged to USB). We generalised these to the following architecture diagram:
 
 ![Generalised arch.]({{ 'assets/img/flaw3d-bootloader/Firmware-Generic-Board.png' | relative_url }}){: .mx-auto.d-block :}
 
-Interestingly, we found that the printers could receive software updates from the externally connected machines. This implied the presence of a *bootloader* which was capable of installing the new firmware to the internal AVR microcontrollers. This was when we realised - rather than the actual printer firmware, could we instead infect the bootloader?
+Interestingly, we found that the printers could receive software updates from the externally connected machines. This implied the presence of a *bootloader* which was capable of installing the new firmware to the internal AVR microcontrollers. This was when we realised - rather than modifying the actual printer firmware, could we instead infect the bootloader?
 
 # Why a bootloader?
 
-Bootloaders are small, complex pieces of code which are generalised across large numbers of devices. They do only two jobs: (1) install the higher-level firmware into the controller memory when requested, and (2) launch the installed firmware after a normal power up sequence. Crucially, they are not typically replaced or updated during a product's lifecycle. In addition, bootloaders are often provided in binary form as compiling them can be a challenge. Even when source codes are provided, auditing it can be difficult, because by their very nature the code looks extremely unsafe, with jumps to raw pointers, inline assembly, and other memory editing features. Of course, you could also provide a pre-compiled "dirty" binary, with "clean" source code alongside it and also hope that users didn't bother doing the difficult recompile!
+Bootloaders are small, complex pieces of code which are generalised across large numbers of devices. They only do two jobs: (1) install the higher-level firmware into the controller memory when requested, and (2) launch the installed firmware after a normal power up sequence. Crucially, they are not typically replaced or updated during a product's lifecycle. In addition, bootloaders are often provided in binary form as compiling them can be a challenge. Even when source codes are provided, auditing it can be difficult, because by their very nature the code looks extremely unsafe, with jumps to raw pointers, inline assembly, and other memory editing features. Of course, you could also provide a pre-compiled "dirty" binary, with "clean" source code alongside it and also hope that users didn't bother doing the difficult recompile!
 
 # Deciding upon the target
 
@@ -39,7 +39,7 @@ For the paper, we actually leapt straight into writing code for the actual targe
 
 # First steps: getting the real bootloader running
 
-As noted, bootloaders are small, even on the scale of embedded software. After obtaining the source code for an ATmega328P bootloader (see [here](https://github.com/arduino/ArduinoCore-avr/blob/master/bootloaders/atmega/ATmegaBOOT_168.c), after compiling it for the 328P you'll find that it is about 1678 bytes (839 words). And for good reason! On the ATmega328P, the bootloader space of the flash memory is at maximum 2048 words, and you can configure it to be smaller:
+As noted, bootloaders are small, even on the scale of embedded software. After obtaining the source code for an ATmega328P bootloader (see [here](https://github.com/arduino/ArduinoCore-avr/blob/master/bootloaders/atmega/ATmegaBOOT_168.c)), after compiling it for the 328P you'll find that it is about 1678 bytes (839 words). And for good reason! On the ATmega328P, the bootloader space of the flash memory is at maximum 2048 words, and you can configure it to be smaller:
 
 ![Boot space 328p]({{ 'assets/img/flaw3d-bootloader/boot-size-328p.png' | relative_url }}){: .mx-auto.d-block :}
 
@@ -116,7 +116,7 @@ _(A note on the paper: The printer microcontrollers already had all the boot fus
 
 Given this as our starting point, we're now ready to start manipulating the bootloader code to see if we can interfere with the running operation of an Arduino program. Remember, Marlin is simply another Arduino program - if we can interfere with a basic program, we can probably interfere with Marlin as well!
 
-Unfortunately, bootloaders are not designed to keep running after booting the main application. In fact, not only does it not "run", it is entirely unloaded! AVR microcontrollers do not have a concept of multi-threading or multi-processes or anything like that. Instead, a program's runtime consists only of the microcontroller's data memory, and when the main program is booted, it resets the stack pointer, completely destroying the bootloader's program memory. Further, there is no normal mechanism for the main program to exit and return to the bootloader without asking the processor to reboot. Bootloaders just aren't designed to do anything else that would need it!
+Unfortunately, bootloaders are not designed to keep running after booting the main application. In fact, not only do they not "run", they are entirely unloaded! AVR microcontrollers do not have a concept of multi-threading or multi-processes or anything like that. Instead, a program's runtime consists only of the microcontroller's data memory, and when the main program is booted, it resets the stack pointer, completely destroying the bootloader's program memory. Further, there is no normal mechanism for the main program to exit and return to the bootloader without asking the processor to reboot. Bootloaders just aren't designed to do anything else that would need it!
 
 That said, one interesting feature from the datasheet did leap out at us, namely, the `IVSEL` register bit. Here's the description:
 
@@ -339,6 +339,8 @@ ISR(TIMER1_COMPA_vect) { //Notice that we've removed ISR_NAKED now, as the funct
 } 
 ```
 
+Awesome! But we've probably reached the limit of what we can do without making some more advanced changes...
+
 # Advanced: Manipulating the main firmware's stack to add Trojan memory
 
 Now, recall that the bootloader doesn't really have any memory after it launches the main firmware. This is because the main firmwaret resets the stack of the AVR, destroying the bootloader program's variables and so on.
@@ -481,6 +483,7 @@ So what happens if we scan that buffer for the key instructions that set up the 
 		#endif
 
     ...
+```
 
 Let's compile this, and try executing our program again!
 
@@ -576,6 +579,7 @@ This is a little more complicated because it happens byte by byte, but we can st
 					address.word++;
 #endif
       ...
+```
 
 You should be able to see how the exploit code in that snippet works - rather than read each byte at once and echo it, we actually read 8 bytes and then echo the first byte, and then keep reading the bytes 8 addresses out of synch. This keeps it quick! We don't want to introduce large, noticable delays.
 
@@ -695,15 +699,33 @@ Bear in mind the Arduino program still hasn't changed from earlier - that TROJAN
 
 As for size, our bootloader is now at 2662 bytes (1331 words) compared with the 1678 bytes (839 words). So we've got a bit bigger, but we still fit comfortably into the 2048 words we have available!
 
-##
+_Note also that in this section, we showed how you could modify arbitrary program instructions. So, if the higher level firmware *did* check for and set `IVSEL`, well, we could simply add code in the firmware to find this code and alter it, just the same as we added code that found and altered the code that set up the program's stack._
 
-Note also that in this section, we showed how you could modify arbitrary program instructions. So, if the higher level firmware *did* check for and set `IVSEL`, well, we could simply add code in the firmware to find this code and alter it, just the same as we added code that found and altered the code that set up the program's stack.
+# Next steps?
+
+As you can imagine, the foundation we've laid out in this blog post (and in our paper) can create some extremely flexible and creative Trojans! Recall that our interest was primarily in affecting the 3D printers running the Marlin firmware, so our next steps were to start working out how we could craft injected instructions to interfere with the printing process! For the meaty details, please [check out the paper](https://arxiv.org/abs/2104.09562), but here's a TL;DR: 
+
+Marlin receives `g-code` which specifies the instructions for the printer to execute over the UART via an interrupt. Using the above approach, we inject instructions into the UART ISR prologue to scan the incoming `g-code` and change it in interesting ways. As an example, here is a 3D printed tensile specimen which was printed through Marlin on a clean bootloader:
+
+![Clean-print]({{ 'assets/img/flaw3d-bootloader/sample-A-blue.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+And here's that same tensile test specimen when it's printed on Marlin running on our FLAW3D bootloader when we reduce the filament by 50%!
+
+![Reduced-print]({{ 'assets/img/flaw3d-bootloader/sample-Y-blue.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+We also created a more subtle mode which relocates filament instead of reducing it. The print still looks pretty good, but...
+
+![Relocated-print]({{ 'assets/img/flaw3d-bootloader/sample-13.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+... the strength of the part is significantly reduced.
+
+![Relocated-print-low-strength-graph]({{ 'assets/img/flaw3d-bootloader/strength-reduction.png' | relative_url }}){: .mx-auto.d-block :}
 
 # Detecting the Trojan
 
 We can detect the presence of the Trojan bootloader using the Xplained Mini's attached debugger. It's a little bit tricky, as we need to enable the debugger from with the Arduino environment, but we can do that with the following code:
-```c
 
+```c
 __attribute__((aligned(256)))
 volatile char __mtbbuffer__[256];
 volatile int __mtbbuffersize__ = sizeof(__mtbbuffer__);
@@ -727,7 +749,7 @@ void InitMTBBuffer()
 void setup() {
   InitMTBBuffer();
   ...
-`
+```
 
 For this demo I returned the Trojan to the simple exploit from earlier, which simply inverts the PORTB pin after the interrupt. Observe:
 
@@ -735,25 +757,11 @@ For this demo I returned the Trojan to the simple exploit from earlier, which si
 
 Here, at (a), (the interrupt vector table for the bootloader) we set a breakpoint. This leads us (b) to the code that inverts PORTB, before (c) jumping to the actual main firmware ISR.
 
-# Next steps?
+However, note that for this detection to occur, we need to have access to the JTAG port of the microcontroller. Neither printer that we examined allowed this, as the JTAG port was multiplexed with the more valuable ADC pins...
 
-As you can imagine, the foundation we've laid out in this blog post (and in our paper) can create some extremely flexible and creative Trojans! Recall that our interest was primarily in affecting the 3D printers running the Marlin firmware, so our next steps were to start working out how we could craft injected instructions to interfere with the printing process! For the meaty details, please [check out the paper](https://arxiv.org/abs/2104.09562), but here's a TL;DR: 
+# Conclusions
 
-Marlin receives `g-code` which specifies the instructions for the printer to execute over the UART via an interrupt. Using the above approach, we inject instructions into the UART ISR prologue to scan the incoming `g-code` and change it in interesting ways. As an example, here is a 3D printed tensile specimen which was printed through Marlin on a clean bootloader:
-
-![Clean-print]({{ 'assets/img/flaw3d-bootloader/sample-A-blue.jpg' | relative_url }}){: .mx-auto.d-block :}
-
-And here's that same tensile test specimen when it's printed on Marlin running on our FLAW3D bootloader when we reduce the filament by 50%!
-
-![Reduced-print]({{ 'assets/img/flaw3d-bootloader/sample-Y-blue.jpg' | relative_url }}){: .mx-auto.d-block :}
-
-We also created a more subtle mode which relocates filament instead of reducing it. The print still looks pretty good, but...
-
-![Relocated-print]({{ 'assets/img/flaw3d-bootloader/sample-13.jpg' | relative_url }}){: .mx-auto.d-block :}
-
-... the strength of the part is significantly reduced.
-
-![Relocated-print-low-strength-graph]({{ 'assets/img/flaw3d-bootloader/strength-reduction.png' | relative_url }}){: .mx-auto.d-block :}
+We can hide code that can edit the behaviour of 3D printers within the bootloaders of those printers. That's worth knowing! It means that we can motivate the need for more comprehensive source code audits for said printers, as well as calling for a move towards more secure architectures (perhaps those that have hard-coded bootloaders, or perhaps those with secure code environments such as ARM's TrustZone). It's also worth noting that the Trojan is detectable, but only if you have access to the JTAG and only if you're able to use the tools to do so! Given that big software projects such as Marlin are often based in the Arduino IDE, which doesn't really support integrated debugging, then it's far more difficult to audit the behaviour of your code. Worth thinking about if you're ever making something that is safety-critical, or making something that makes safety-critical parts...
 
 # More reading
 
