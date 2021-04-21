@@ -2,7 +2,7 @@
 layout: post
 title: 'FLAW3D: Hiding a Trojan in an AVR Arduino Bootloader'
 subtitle: Code injection and memory editing!
-share-img: assets/img/pico-kiwikit/pcb-running.jpg
+share-img: assets/img/flaw3d/xplained-mini.jpg
 gh-repo: kiwih/xplained-mini-328p-flaw3d-bootloader
 gh-badge: [star, fork, follow]
 tags: [reverse-engineering, arduino, avr, c, bootloader, trojan]
@@ -36,6 +36,8 @@ Noting now that our printers were Marlin-capable (and one of them was likely alr
 # Choosing a target device
 
 For the paper, we actually leapt straight into writing code for the actual target architecture. However, in order to keep the printers we targeted anonymous, for this blog post, we will instead target an ATmega328P running on an Xplained Mini. Unfortunately this architecture is too small to run the entire Marlin software stack, so for this blog post we will change the firmware to something more lightweight. However, the general steps are the same.
+
+![An Xplained Mini]({{ 'assets/img/flaw3d-bootloader/xplained-mini.jpg' | relative_url }}){: .mx-auto.d-block :}
 
 # First steps: getting the real bootloader running
 
