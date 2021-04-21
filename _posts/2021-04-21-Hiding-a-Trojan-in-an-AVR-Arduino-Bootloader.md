@@ -2,7 +2,7 @@
 layout: post
 title: 'FLAW3D: Hiding a Trojan in an AVR Arduino Bootloader'
 subtitle: Code injection and memory editing!
-share-img: assets/img/flaw3d/xplained-mini.jpg
+share-img: assets/img/flaw3d-bootloader/xplained-mini.jpg
 gh-repo: kiwih/xplained-mini-328p-flaw3d-bootloader
 gh-badge: [star, fork, follow]
 tags: [reverse-engineering, arduino, avr, c, bootloader, trojan]
