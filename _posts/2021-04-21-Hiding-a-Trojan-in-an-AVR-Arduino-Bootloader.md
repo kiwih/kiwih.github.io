@@ -725,7 +725,7 @@ We also created a more subtle mode which relocates filament instead of reducing 
 
 # Detecting the Trojan
 
-We can detect the presence of the Trojan bootloader using the Xplained Mini's attached debugger. It's a little bit tricky, as we need to enable the debugger from with the Arduino environment, but we can do that with the following code:
+We can detect the presence of the Trojan bootloader using the Xplained Mini's attached debugger. It's a little bit tricky, as we need to enable the debugger from within the Arduino ecosystem, but we can do that with the following code:
 
 ```c
 __attribute__((aligned(256)))
@@ -757,17 +757,17 @@ For this demo I returned the Trojan to the simple exploit from earlier, which si
 
 ![Atmel studio debugger]({{ 'assets/img/flaw3d-bootloader/debugger_avr328p_exploit.png' | relative_url }}){: .mx-auto.d-block :}
 
-Here, at (a), (the interrupt vector table for the bootloader) we set a breakpoint. This leads us (b) to the code that inverts PORTB, before (c) jumping to the actual main firmware ISR.
+Here, at (a), (the interrupt vector table for the bootloader) we set a breakpoint. After the interrupt occurs, the Debugger halts the program and informs us that it did in fact reach this location - which would be quite surprising if we weren't expecting it! Using the debugger to follow the code leads us to (b), the code that inverts PORTB, before (c) jumping to the actual main firmware ISR.
 
-However, note that for this detection to occur, we need to have access to the JTAG port of the microcontroller. Neither printer that we examined allowed this, as the JTAG port was multiplexed with the more valuable ADC pins...
-
-# Source Access
-
-Should you want it, the complete source code for the FLAW3D bootloader Trojan described in this blog post is available on Github [here](https://github.com/kiwih/xplained-mini-328p-flaw3d-bootloader).
+Of course, for us to be able to do this, we needed to firstly have that extra code in our Arduino program, as well as to have access to the JTAG port of the microcontroller. It's worth noting that neither printer that we examined in the paper would have worked with this, as their JTAG ports were multiplexed with the more application-valuable ADC pins...
 
 # Conclusions
 
 We can hide code that can edit the behaviour of 3D printers within the bootloaders of those printers. That's worth knowing! It means that we can motivate the need for more comprehensive source code audits for said printers, as well as calling for a move towards more secure architectures (perhaps those that have hard-coded bootloaders, or perhaps those with secure code environments such as ARM's TrustZone). It's also worth noting that the Trojan is detectable, but only if you have access to the JTAG and only if you're able to use the tools to do so! Given that big software projects such as Marlin are often based in the Arduino IDE, which doesn't really support integrated debugging, then it's far more difficult to audit the behaviour of your code. Worth thinking about if you're ever making something that is safety-critical, or making something that makes safety-critical parts...
+
+# Source Access
+
+Should you want it, the complete source code for the FLAW3D bootloader Trojan described in this blog post is available on Github [here](https://github.com/kiwih/xplained-mini-328p-flaw3d-bootloader).
 
 # More reading
 
