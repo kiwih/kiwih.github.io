@@ -23,7 +23,7 @@ Lately our research group has been interested in 3D printer cybersecurity. I had
 
 ![Generalised arch.]({{ 'assets/img/flaw3d-bootloader/Firmware-Generic-Board.png' | relative_url }}){: .mx-auto.d-block :}
 
-Interestingly, we found that the printers could receive software updates from the externally connected machines. This implied the presence of a *bootloader* which was capable of installing the new firmware to the internal AVR microcontrollers. This was when we realised - rather than modifying the actual printer firmware, could we instead infect the bootloader?
+Interestingly, we found that the printers could receive software updates from the externally connected machines. This implied the presence of a *bootloader* which was capable of installing the new firmware to the internal AVR microcontrollers. This was when we realised - rather than modifying the actual printer firmware, could we instead infect the bootloader? Enter our idea, to introduce a flaw to the bootloader, to create a flawed bootloader, or a FLAW3D bootloader for 3D printers :)
 
 # Why a bootloader?
 
@@ -760,6 +760,10 @@ For this demo I returned the Trojan to the simple exploit from earlier, which si
 Here, at (a), (the interrupt vector table for the bootloader) we set a breakpoint. This leads us (b) to the code that inverts PORTB, before (c) jumping to the actual main firmware ISR.
 
 However, note that for this detection to occur, we need to have access to the JTAG port of the microcontroller. Neither printer that we examined allowed this, as the JTAG port was multiplexed with the more valuable ADC pins...
+
+# Source Access
+
+Should you want it, the complete source code for the FLAW3D bootloader Trojan described in this blog post is available on Github [here](https://github.com/kiwih/xplained-mini-328p-flaw3d-bootloader).
 
 # Conclusions
 
