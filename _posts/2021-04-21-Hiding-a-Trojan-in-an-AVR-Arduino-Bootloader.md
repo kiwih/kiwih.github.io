@@ -419,7 +419,7 @@ Next, we load _0xFF_ to register `r28`, then _0x08_ to `r29`, before setting mem
 
 And would you look at that, those are the two stack pointer registers. The little block of assembly there from lines `6e` to `74` is thus setting the stack pointer to the value _0x08FF_. And if we look at the datasheet for the data memory map on the 328P, what do we see?
 
-![328P Datasheet memory map]({{ 'assets/img/flaw3d-bootloader/328p-data-memory-map.png' | relative_url }}){: .mx-auto.d-block :}
+![328P Datasheet memory map]({{ 'assets/img/flaw3d-bootloader/328p-data-memory-map.PNG' | relative_url }}){: .mx-auto.d-block :}
 
 That's right, it starts at _0x08FF_!
 
