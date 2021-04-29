@@ -132,7 +132,15 @@ Thus, if `IVSEL` is set to make interrupts jump to bootloader space instead of p
 Of course, this would be very obvious. 
 So instead, what if we made it so that we _wrap_ the interrupts in the original vector table? That is, we change `IVSEL` so it points to bootloader space, and we add our malicious code, and then we jump to the real interrupt? This is straightforward, as the interrupt vectors are entirely constant and specified in the datasheet.
 
-Let's make a demo that flips the LED upon TIMER1_COMPA vector, and see what it looks like in the code.
+This idea is presented in these two figures. Here we have the original ISR, operating with the correct `IVSEL`:
+
+![IVSEL correct ISR]({{ 'assets/img/flaw3d-bootloader/firmware-isr.png' | relative_url }}){: .mx-auto.d-block :}
+
+And here's what we can do, if we set up a bad `IVSEL` to enable us to _wrap_ the original interrupts:
+
+![IVSEL bad ISR]({{ 'assets/img/flaw3d-bootloader/firmware-wrap-isr.png' | relative_url }}){: .mx-auto.d-block :}
+
+Let's test this by making a demo that flips the LED upon TIMER1_COMPA vector, and see what it looks like in the code.
 Note that (1) we have to specify the entire table of interrupts, since we can't move just some of them, (2) This is optional, but `ISR_NAKED` means the function doesn't generate with any prologue or epilogue code (the assembly of the function will just be plopped in, saving us precious program space), and (3) the existing bootloader code normally calls the function `app_start()` to boot the program when it decides it is time.
 
 Here's the code - we just copy and paste this into the `ATmegaBOOT_168.c` file, just above `main()`:
