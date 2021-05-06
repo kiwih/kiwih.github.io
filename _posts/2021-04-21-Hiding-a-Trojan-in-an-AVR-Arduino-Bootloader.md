@@ -3,7 +3,7 @@ layout: post
 title: 'FLAW3D: Hiding a Trojan in an AVR Arduino Bootloader'
 subtitle: Code injection and memory editing!
 share-img: assets/img/flaw3d-bootloader/xplained-mini.jpg
-gh-repo: kiwih/xplained-mini-328p-flaw3d-bootloader
+gh-repo: kiwih/328p-flaw3d-bootloader
 gh-badge: [star, fork, follow]
 tags: [reverse-engineering, arduino, avr, c, bootloader, trojan]
 ---
@@ -15,7 +15,7 @@ In our case, we were interested in examining if a firmware-level Trojan could im
 
 Here, we enter the world of AVR and Arduino bootloaders, and we found that yes, we could hide a Trojan that could impact upon the behaviour of the 3D printer. We even designed two different Trojans and characterized their performance on two different (anonymized) printers. You can read our complete findings [here](https://arxiv.org/abs/2104.09562).
 
-This blog post is a presentation of how we derived the Section III in the paper (the construction of a FLAW3D bootloader), for an Xplained-Mini's ATmega328P. 
+This blog post is a presentation of how we derived the Section III in the paper (the construction of a FLAW3D bootloader), for an Xplained-Mini's ATmega328P. For your interest, the complete code is provided on Github [here](https://github.com/kiwih/328p-flaw3d-bootloader).
 
 # The idea
 
@@ -775,7 +775,7 @@ We can hide code that can edit the behaviour of 3D printers within the bootloade
 
 # Source Access
 
-Should you want it, the complete source code for the FLAW3D bootloader Trojan described in this blog post is available on Github [here](https://github.com/kiwih/xplained-mini-328p-flaw3d-bootloader).
+Should you want it, the complete source code for the FLAW3D bootloader Trojan described in this blog post is available on Github [here](https://github.com/kiwih/328p-flaw3d-bootloader).
 
 # More reading
 
