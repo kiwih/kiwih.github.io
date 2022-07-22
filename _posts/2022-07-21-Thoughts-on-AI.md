@@ -12,12 +12,16 @@ Already, commercial tools are coming online: like [Jasper](https://www.jasper.ai
 
 As GPT-2/large says, "`It is the beginning of a new era: the "Artificial Creativity" era. We are beginning to see a paradigm shift in how we think about the creative process, and in how we think about computers and creativity itself.`" (I prompted it with the article contents up to the opening quote mark using [huggingface](https://transformer.huggingface.co/doc/distil-gpt2)).
 
-In many ways these tools are awe-inspiring, capable of performance that few technologists would have predicted even five years ago. It's verifiable performance, too: many designs are published academically, and others are made free to use online. For instance, we can produce art using [craiyon](https://www.craiyon.com/) at no cost.
+In many ways these tools are awe-inspiring, capable of performance that few technologists would have predicted even five years ago. 
+It's verifiable performance, too: many designs are published academically, and others are made free to access online. 
+They're even easy to use: simply provide a text-based input prompt, and let the AI take off!
+For instance, we can produce art using [craiyon](https://www.craiyon.com/) at no cost.
 
 ![craiyon art.]({{ 'assets/img/thoughts-on-ai/craiyon-2022-07-21 An AI making art.png' | relative_url }}){: .mx-auto.d-block :}
 *Craiyon - An AI making art*
 
-That said, although we might know the general structure of their architecture of the most capable models, training these AI models is an expensive task (estimates for the art-producing DALL-E version 2 range from hundreds of thousands to millions of dollars; for the prose-writing GPT-3 the range is in the tens of millions of dollars).
+That said, although we might know the general structure of their architecture of the most capable models, training these AI models is an expensive task (estimates for the art-producing DALL-E version 2 range from hundreds of thousands to millions of dollars; for the prose-writing GPT-3 the range is in the tens of millions of dollars). 
+As such, they have value, and their exact configuration and trained 'weights' will not be shared.
 In addition, these models will typically require powerful computers in order to produce their outputs: there's no simply running it on your desktop PC.
 
 ![DALL-E art.]({{ 'assets/img/thoughts-on-ai/DALL-E 2022-07-21 10.20.46 - a kiwi bird programs a computer, digital art.png' | relative_url }}){: .mx-auto.d-block :}
