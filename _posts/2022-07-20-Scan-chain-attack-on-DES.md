@@ -23,4 +23,4 @@ Further, the steps that we outline in this tutorial may be utilized in the gener
 
 # The tutorial
 
-The remainder of this tutorial will be presented soon.
+This tutorial is presented in PDF format [on Arxiv](https://arxiv.org/pdf/2207.10466.pdf). Thanks also to my co-authors Benjamin Tan (University of Calgary) and Ramesh Karri (NYU).
