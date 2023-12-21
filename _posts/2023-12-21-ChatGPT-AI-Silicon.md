@@ -10,7 +10,7 @@ TL;DR: I architectured a microcontroller chip in early 2023 using ChatGPT and it
 
 This was the first time anyone had used an LLM to design silicon. Our paper appeared at [MLCAD'23](https://ieeexplore.ieee.org/document/10299874/), [arXiv link](https://arxiv.org/abs/2305.13243). 
 
-All chat logs are provided [in our repository](https://zenodo.org/records/7953725).
+All chat logs are provided [in our repository](https://zenodo.org/records/7953725) and [QTcore-C1 GitHub](https://github.com/kiwih/qtcore-C1).
 
 <video width='50%' controls>
   <source src="{{ '/assets/vid/chip-chat/chip-chat.mp4' | relative_url }}" type="video/mp4">
@@ -389,7 +389,7 @@ Error: Test case 3 failed. Expected: 10101010, Received: 01010101
 All test cases passed!
 </pre>
 
-<b>ASSISTANT:**</b><br/>
+<b>ASSISTANT:</b><br/>
 
 Apologies for the confusion. It appears that the test cases are failing due to incorrect output expectations. I made a mistake in the test case expectations. Let's correct the test cases and update the testbench code:<br/>
 
@@ -536,6 +536,8 @@ This was what I wanted ChatGPT-4 to build here. Knowing that we were working wit
 
 I decided that ChatGPT-4 would write every line of functional Verilog, but given the difficulties we had faced with verification and testbenches I would produce those and run and interpret the simulations etc. 
 
+*Why make this design instead of something like RISC-V?*: There are many implementations of open-source processors for ISAs like RISC-V and MIPS. The problem is, that means GPT-4 has seen these designs during training. For this work, I didn't want to explore simply the capabilities of ChatGPT-4 to emit data it has trained over - rather, I wanted to see how it performed when making something more novel. As such, I shephereded the models into making a wholly new design, with a strange ISA that ChatGPT-4 itself provided, something I believe is quite different to what is available in the open-source literature.
+
 I began with:
 
 ```
@@ -560,15 +562,17 @@ We illustrate this in our flow map below, where the 'Cont. T. ID' column indicat
 Still, as can be seen from the '# Restart' column in the result table, the number of restarts tended to decrease as I grew more experienced with using ChatGPT-4, with Topics 00-07 having 57 restarts compared to Topics 08-18 having just 8. The highest individual number of restarts on a single message was 10, in Topic 04 (Control signal planning) which has the following message:
 
 <details><summary>Click to expand</summary>
-```
+
+<pre>
 This looks excellent. According to this list, please produce the module definition for a control unit in Verilog which could operate the processor datapath. Please comment the purpose of each I/O. If a signal is for controlling a multiplexer, please also comment what each possible value should correspond to in the datapath.
-```
+</pre>
+
 </details>
 
 This was a difficult prompt because it asks for a specific kind of output with a significant amount of detail, but eventually yielded a satisfactory answer as listed here:
 
 <details><summary>Click to expand</summary>
-```verilog
+{% highlight verilog %}
 
 module control_unit (
     // Clock input
@@ -608,19 +612,19 @@ module control_unit (
     output wire [1:0] Memory_address_mux_select                
 );
 
-```
+{% endhighlight %}
 </details>
 
 **Bug repair**: After errors were encountered, we would use ChatGPT-4 to repair them. An example of this is presented here. This is based on Conversation 15, and demonstrates how an error in the shift register primitive was resolved.
 
 <details><summary>Click to expand</summary>
 
-### 15 - SHIFT REGISTER BUG FIX
+<b>15 - SHIFT REGISTER BUG FIX</b><br/><br/>
 
-**USER:**
+<b>USER:</b><br/>
 
-I have the following shift_register written in Verilog:
-```
+I have the following shift_register written in Verilog:<br/>
+{% highlight verilog %}
 module shift_register #(
     parameter WIDTH = 8
 )(
@@ -652,16 +656,17 @@ module shift_register #(
     assign scan_out = internal_data[WIDTH-1];
 
 endmodule
-```
-Unfortunately, it doesn't work if the WIDTH is set to 1. Can you fix it?
+{% endhighlight %}
 
-**ASSISTANT:**
+Unfortunately, it doesn't work if the WIDTH is set to 1. Can you fix it? <br/>
 
-Sure! The issue arises from the part where you define the concatenation of the internal_data register when `scan_enable` is high. When the WIDTH is set to 1, the range `internal_data[WIDTH-2:0]` will cause an out-of-bounds access to the internal_data register.
+<b>ASSISTANT:</b><br/>
 
-To fix this, you can use a conditional expression to handle the case where WIDTH is set to 1. Here's the updated code:
+Sure! The issue arises from the part where you define the concatenation of the internal_data register when `scan_enable` is high. When the WIDTH is set to 1, the range `internal_data[WIDTH-2:0]` will cause an out-of-bounds access to the internal_data register.<br/>
 
-```verilog
+To fix this, you can use a conditional expression to handle the case where WIDTH is set to 1. Here's the updated code:<br/>
+
+{% highlight verilog %}
 module shift_register #(
     parameter WIDTH = 8
 )(
@@ -697,19 +702,20 @@ module shift_register #(
     assign scan_out = internal_data[WIDTH-1];
 
 endmodule
-```
 
-Now, the code will properly handle the case where WIDTH is set to 1.
+{% endhighlight %}
 
-**USER:**
+Now, the code will properly handle the case where WIDTH is set to 1.<br/>
 
-Thanks! Can you also make it so scan_enable has a higher priority than the normal enable?
+<b>USER:</b><br/>
 
-**ASSISTANT:**
+Thanks! Can you also make it so scan_enable has a higher priority than the normal enable?<br/>
+
+<b>ASSISTANT:</b><br/>
 
 Sure! To give the `scan_enable` signal a higher priority over the `enable` signal, you can change the order of the conditions in the always block. Here's the updated code:
 
-```verilog
+{% highlight verilog %}
 module shift_register #(
     parameter WIDTH = 8
 )(
@@ -745,11 +751,13 @@ module shift_register #(
     assign scan_out = internal_data[WIDTH-1];
 
 endmodule
-```
+{% endhighlight %}
 
-Now, the `scan_enable` signal has a higher priority over the `enable` signal. When both signals are high, the shift register will operate in scan mode instead of the normal mode.
+Now, the `scan_enable` signal has a higher priority over the `enable` signal. When both signals are high, the shift register will operate in scan mode instead of the normal mode.<br/>
 
 </details>
+
+(This bug fix worked too!)
 
 ### The Developed Instruction Set Architecture (ISA)
 
@@ -787,8 +795,9 @@ This meant I could write this little program in the cursed assembly language for
 
 ```
 ; this program tests the btn and LEDs
-; after each BTN is low then BTN is high it will toggle the LEDs between 
-; two values
+; after each BTN is low then BTN is high (i.e. a button release) 
+; it will toggle the LEDs between 
+; two values (matching blue and purple colors)
 ; BTNs and LEDS are at address 17, btn at LSB
 0: LDA 17 ; load the btn and LEDS
 1: AND 16 ; mask the btn
@@ -816,35 +825,250 @@ This meant I could write this little program in the cursed assembly language for
 ```
 
 Here it is working!
-<video width='50%' controls>
+<video width='80%' controls>
   <source src="{{ '/assets/vid/chip-chat/FPGA-qtcore-A1.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
-So, I was happy, it worked in simulation and on an FPGA, so I happily sent it off to Tiny Tapeout, and then we released our paper to the arXiv.
+So, I was happy, it worked in simulation and on an FPGA, so I happily sent it off to Tiny Tapeout, and then we released our paper to the arXiv and our design as open-source - you can take a look and if you have an FPGA, even have a play! [Github link](https://github.com/kiwih/tt03-verilog-qtcoreA1)
 
 # Part 5: The Efabless Competition and the QTcore-C1
 
-Our initial feedback for the work was brilliant, and Matt Venn of Tiny Tapeout interviewed myself and Jason! [Youtube link](https://www.youtube.com/watch?v=6vC3t_soJok)
+We received a lot of feedback on the submission. Matt Venn of Tiny Tapeout actually interviewed myself and Jason for his webinar! [Youtube link](https://www.youtube.com/watch?v=6vC3t_soJok), video embed below:
 
 <iframe width="420" height="315"
 src="https://www.youtube.com/embed/6vC3t_soJok">
 </iframe> 
 
-This received a lot of attention! We were contacted by a number of different companies in the EDA space including a few you have most definitely heard of. 
+This went live 2 June 2023, and received a lot of attention (relatively)! We were also were contacted by a number of different companies in the EDA space including a few you have most definitely heard of. 
 
+One of the most interesting, though, was a call I ended up having with the good folks at [Efabless](https://efabless.com/), who told me that they had been planning an AI generated open-source silicon design challenge - and given that we had just performed such a feat, perhaps we should consider entering? The only wrinkle was that they were doing the contest at short notice, and we'd only have a few weeks to prepare - weeks in which I was actually overseas at a series of conferences!
 
+I decided that I would enter, but I would have to make some compromises. Their competition was based around the Efabless Caravel ChipIgnite platform, which pairs a RISC-V core with a user project area, such that you can design a hardware block with a wishbone connection and it will be placed alongside the core. This image, taken from the Efabless website, shows it best:
+
+![Caravel.]({{ 'assets/img/chip-chat/caravel-chipignite.png' | relative_url }}){: .mx-auto.d-block :}
+
+There was tons more space, but time was short. I would follow the methodology I'd previously laid out, and starting from the QTcore-A1, modify the microcontroller so that it was would take up the greater area available in the Efabless Caravel platform (it seemed like a tremendous shame to only use a fraction of the available space).
+
+There were a few main wrinkles: 
+1. although this was based on OpenLane, just like Tiny Tapeout, it was a much more manual and involved process, and there wasn't a simple Github-actions based workflow. I had to install a lot of stuff to my laptop!
+2. The simulations needed to be a lot more robust than for Tiny Tapeout, and given that your design needed to be verified alongside the caravel core, it took _much_ longer - my most basic simulation still took over 45 minutes, up from about 10 seconds for Tiny Tapeout.
+3. This was a competition, and the entries would be judged on how well they were documented, could be used, contribution to the open source, etc. So I had to also make sure everything was good on that front!
+
+I decided I would make ChatGPT-4 make the following changes to the QTCore-A1. Firstly, the memory size would be upgraded to 256 bytes of shared instruction/data memory, divided into 16-byte pages. Secondly, I would add some peripherals - a 16-bit timer, some I/O ports, and given that I am a hardware security researcher in my day job, I also decided to add 2 eight-bit 'memory execution protection' control registers to provide 'execution' bits for each of the 16 pages, and update the original, cursed branch logic.
+
+### The new ISA:
+
+As before, everything is provided open-source, but this time it is in the [QTcore-C1 GitHub](https://github.com/kiwih/qtcore-C1) repository, under the `AI_generation_information/chats` folder. Each chat extends a conversation from the original QTCore-A1.
+
+This was the ISA that ChatGPT eventually settled on when I prompted it with design chages.
+
+**Instructions with Variable-Data Operands**
+
+| Instruction | Opcode    | Registers/Effects            |
+|-------------|-----------|------------------------------|
+| LDA         | 0000MMMM  | ACC <= M[{Segment, MMMM}]    |
+| STA         | 0001MMMM  | M[{Segment, MMMM}] <= ACC    |
+| ADD         | 0010MMMM  | ACC <= ACC + M[{Segment, MMMM}] |
+| SUB         | 0011MMMM  | ACC <= ACC - M[{Segment, MMMM}] |
+| AND         | 0100MMMM  | ACC <= ACC & M[{Segment, MMMM}] |
+| OR          | 0101MMMM  | ACC <= ACC \| M[{Segment, MMMM}] |
+| XOR         | 0110MMMM  | ACC <= ACC ^ M[{Segment, MMMM}] |
+
+**Immediate Data Manipulation Instructions**
+
+| Instruction | Opcode    | Registers/Effects                     |
+|-------------|-----------|---------------------------------------|
+| ADDI        | 1000IIII  | ACC <= ACC + IMM                      |
+| LUI         | 1001IIII  | ACC <= IMM << 4, ACC[0:3] <= 0        |
+| SETSEG      | 1010IIII  | Segment <= IMM                        |
+
+**Control/Status Register Manipulation Instructions**
+
+| Instruction | Opcode    | Registers/Effects       |
+|-------------|-----------|-------------------------|
+| CSR         | 10110RRR  | ACC <= CSR[RRR]         |
+| CSW         | 10111RRR  | CSR[RRR] <= ACC         |
+
+**Fixed Control and Branching Instructions**
+
+| Instruction | Opcode    | PC Behavior/Effects                   |
+|-------------|-----------|---------------------------------------|
+| JMP         | 11110000  | PC <- ACC                             |
+| JSR         | 11110001  | ACC <- PC + 1, PC <- ACC              |
+| HLT         | 11111111  | Stop execution                        |
+
+**Variable-Operand Branching Instructions**
+
+| Instruction | Opcode    | Operand        | PC Behavior                           |
+|-------------|-----------|----------------|---------------------------------------|
+| BEQ         | 1100SBBB  | Sign + Offset  | If ACC == 0, PC <- PC ± Offset        |
+| BNE         | 1101SBBB  | Sign + Offset  | If ACC != 0, PC <- PC ± Offset        |
+| BRA         | 1110SBBB  | Sign + Offset  | PC <- PC ± Offset                     |
+
+**Data Manipulation Instructions**
+
+| Instruction   | Opcode    | Register Effects                    |
+|---------------|-----------|-------------------------------------|
+| SHL           | 11110110  | ACC <- ACC << 1                     |
+| SHR           | 11110111  | ACC <- ACC >> 1                     |
+| ROL           | 11111000  | ACC <- (ACC << 1) OR (ACC >> 7)     |
+| ROR           | 11111001  | ACC <- (ACC >> 1) OR (ACC << 7)     |
+| LDAR          | 11111010  | ACC <- M[ACC]                       |
+| SETSEG_ACC    | 11111011  | Segment <- ACC[3:0]                 |
+| DEC           | 11111100  | ACC <- ACC - 1                      |
+| CLR           | 11111101  | ACC <- 0                            |
+| INV           | 11111110  | ACC <- ~ACC                         |
+
+### The datapath:
+
+![Caravel.]({{ 'assets/img/chip-chat/chip-chat-qtcore_c1_datapath.drawio.png' | relative_url }}){: .mx-auto.d-block :}
+
+Whew, a lot of changes in there! Observe there is now the segment register which is concatenated with parts of the instructions to decode the addresses for instructions with variable data operands.
+
+Here's the full details:
+
+* Control Unit: 2-cycle FSM for driving the processor (3 bit one-hot encoded state register)
+* Program Counter: 8-bit register containing the current address of the program
+* Segment Register: 4-bit register containing the current segment used for data memory instructions
+* Instruction Register: 8-bit register containing the current instruction to execute
+* Accumulator: 8-bit register used for data storage, manipulation, and logic
+* Memory Bank: 256 8-bit registers which store instructions and data. 
+* Control and Status Registers: 8 8-bit registers which are used for special features including the timer, I/O, memory protection, and sending an interrupt and receiving and sending signals to the larger Caravel processor.
+
+* Control/Status Registers (CSRs) and their addresses
+
+1. **SEGEXE_L (000)**: 8 bits - Represents the lower half of the memory segments that are designated as executable. Each bit in the register corresponds to a segment in the lower half of memory space. If a bit is set to 1, the corresponding segment is marked as executable.
+
+2. **SEGEXE_H (001)**: 8 bits - Represents the higher half of the memory segments that are designated as executable. Each bit in the register corresponds to a segment in the upper half of memory space. If a bit is set to 1, the corresponding segment is marked as executable.
+
+3. **IO_IN (010)**: 8 bits - Input register for UART (or any general I/O device) operations. This is used to read data from external devices.
+
+4. **IO_OUT (011)**: 8 bits - Output register for UART (or any general I/O device) operations. This is used to write data to external devices.
+
+5. **CNT_L (100)**: 8 bits - Lower 8 bits of a 16-bit counter register. This can be used to store the lower half of a count value, which could be used for timing operations, or looping in programming, etc.
+
+6. **CNT_H (101)**: 8 bits - Higher 8 bits of a 16-bit counter register. This can be used to store the upper half of a count value, similar to the CNT_L register.
+
+7. **STATUS_CTRL (110)**: 8 bits - A control register to hold the status of different operations in the CPU. The bits are: `{SIG_OUT[7:2], CNT_EN[1], IRQ_OUT[0]}`. The SIG_OUT bits are used to send signals (6 bits) to the larger Caravel processor. The CNT_EN bit is used to enable the counter. The IRQ_OUT bit is used to send an interrupt to the larger Caravel processor.
+
+8. **SIG_IN (111)**: 8 bits - The 8-bits here can come from the larger Caravel processor. This can be used to send signals to the CPU, such as job start, job end, etc.
+
+### Example programming using the assembler
+
+Writing assembly programs for QTCore-C1 is simplified by the assembler produced by GPT-4. First, we define a additional meta-instructions:
+
+### Meta-instructions:
+
+- DATA: Define raw data to be loaded at the current address
+- Operand (8 bits): 8-bit data value
+
+### Presenting programs to the assembler:
+
+1. Programs are presented in the format `[address]: [mnemonic] [optional operand]`
+2. There is a special meta-instruction called DATA, which is followed by a number. If this is used, just place that number at that address.
+3. Programs cannot exceed the size of the memory (in QTCore-C1, this is 256 bytes).
+4. The memory contains both instructions and data.
+
+### Example program:
+
+In this program observe how we read and write to the I/O, the timer, and the data memory via SETSEG. We also set the memory segments to be executable via CSW, and then jump to a non-executable segment to crash the processor.
+
+<details><summary>Click here for program</summary>
+
+<pre>
+; this program tests the IO and counter registers via (CSR/CSW) and the interrupt emitter
+; it should crash with a HALT after jumping to a non-executable data segment
+; check output: program halted
+; check output: IO_OUT = 15
+; check output: M[240] = IO_IN
+; check output: M[253] = 2
+; check output: M[254] = 0b11111101
+; check output: M[255] = 0xf1
+0: CLR
+1: SETSEG 15
+2: LDA 0 ; loads value M[16*15 + 0 = 240] = 15
+3: CSW 3 ; sets the value 15 to the CSR register 3 (IO_OUT)
+4: CSR 2 ; reads from CSR register 2 (IO_IN) to ACC
+5: STA 0 ; sends the IO_IN value to M[16*15 + 0 = 240]
+6: CLR ;
+7: ADDI 15;
+8: CSW 0 ; sets SEGEXE_L to 0x0F, making just segments 0-3 executable
+9: CSW 1 ; sets SEGEXE_H to 0x0F, making just segments 8-11 executable
+10: CLR ;
+11: LDAR ; loads the value of M[0] = 0b11111101 into ACC
+12: STA 14; stores it in M[16*15 + 14 = 254]
+13: CLR ;
+14: CSW 4; set 0 to CNT_L
+15: CSW 5; set 0 to CNT_H
+16: ADDI 2; 
+17: CSW 6; set the second bit of STATUS_CTRL (starts the counter)
+18: ADDI 0; timer to value 1
+19: CSR 4; reads the timer (value = 1), timer to value 2
+20: CSR 4; reads the timer (value = 2), timer to value 3  
+21: STA 13; stores it in M[16*15 + 13 = 253] (should be value 2)
+22: LUI 3;
+23: JMP ; jumps to address 48
+
+48: CLR ;
+49: LUI 15;
+50: ADDI 1; make the constant 0xf1
+51: STA 15; store it in M[16*15 + 15 = 255]
+52: JMP; jumps to address 0xf1 (241)
+
+240: DATA 15
+241: CLR ; sets ACC to 0, but actually we should crash here for being non-executable
+242: JMP 
+</pre>
+</details>
+
+You can see all the other juicy details at the [QTcore-C1 GitHub](https://github.com/kiwih/qtcore-C1).
 
 # Part 6: Receiving the silicon
 
+Well, we entered the contest (submission was finally finalized 2 hours before the deadline at 6am on the due morning), and - [the QTcore-C1 won](https://efabless.com/genai/challenges/1), woohoo! This meant that the chip would get taped out, and I would get copies of the silicon in the mail!
+
+I did a webinar with Efabless afterwards, on how the process works, my motivation, and how you can get started in this area as well - [https://www.youtube.com/watch?v=-R7limdUyts](Youtube link), embedded video below:
+
+<iframe width="420" height="315"
+src="https://www.youtube.com/embed/-R7limdUyts">
+</iframe> 
+
+I then joined their panels as a judge for the second and third iterations of the contest.
+
+And then, just two weeks ago, I got a parcel in the mail, and...
+
+![efabless chip.]({{ 'assets/img/chip-chat/chip-efabless.jpg' | relative_url }}){: .mx-auto.d-block :}
+
+It had arrived! (To be precise, I received _ten_ chips on these little carrier boards, and _fifty_ chips which I have to solder myself!)
+
 # Part 7: Basic tests and a christmas LED display!
 
+The first thing I needed to test was that I could actually talk to my chip, just as I had been able to do in the simualations. I spun up the program I had made for the original competition deadline, and put it into the Caravel, then realized that it "passed" only according to the simulator inspecting values - i.e. the processor did not actually emit anything! So I had to update the RISC-V program to have UART, which was thankfully quite easy thanks to the caravel documentation. 
 
-We came up with two approaches began a process to use LLMs for a new hardware design, which led me to a submission first to Tiny Tapeout, and then a few short weeks later, to the inaugural Efabless AI Generated Open Source Silicon Design contest. My entry, a crazy 8-bit microcontroller, won! This means it was taped out for free, and two weeks ago, I received it in the mail - faster than the Tiny Tapeout.
+After one devastating experiment where nothing happened and I thought the chip didn't work, I realized I needed to do one extra configuration step to enable the caravel userspace wishbone bus, and then I ran the program, and -
 
-Even better - the design works, and in
+![it works]({{ 'assets/img/chip-chat/basic-test-pass.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-I've discussed with multiple tech and EDA experts in industry and academia, and we're almost 100% certain that this chip represents the world's first tapeout where 100% of the hardware design language was written by a Large Language Model (ChatGPT, in this case).
+It works!
 
-If this sounds 
-This blog post will
+It's hard to describe how amazing it felt to have a working piece of silicon in front of me that I had taken a part in designing, especially since I had never actually designed anything taped out before. Nor, perhaps, would I have done, without LLMs like ChatGPT to inspire me to try.
+
+I did a few more experiments, and found that there are perhaps some issues with the chip, including an issue where it doesn't want to restart after running a HALT command (annoying since I like to HALT to indicate a program has finished running!).
+
+I ended up creating a simple counter program with a handshake to the caravel processor, similar to the LED blinking program, from earlier, and then - tada - the festive, christmas tree extravaganza:
+
+<video width='50%' controls>
+  <source src="{{ '/assets/vid/chip-chat/chip-chat.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+## What's next?
+
+I have worked with LLMs for hardware since 2020 because I believe that they have an enormous potential to simplify, democratize, and accelerate hardware development, especially when used in conjunction with open-source design flows like that provided by OpenLane and Caravel. 
+
+I don't think I am alone in this view, either. In recent months, RapidSilicon has announced RapidGPT, NVIDIA has brought out ChipNeMo, Cadence announced JedAI, and Synopsys.AI has launched. All of these are real-world commercial enterprises which aim to bring LLMs into the hardware space.
+
+I'm really excited for what comes next.
+
+And as for me, I'll keep tinkering - I've definitely got some more experiments I want to run and more places I can see LLMs being useful in hardware design.
