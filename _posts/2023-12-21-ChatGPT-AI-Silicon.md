@@ -795,7 +795,7 @@ This meant I could write this little program in the cursed assembly language for
 
 Here it is working!
 <video width='50%' controls>
-  <source src="{{ '/assets/vid/chip-chat/chip-chat.mp4' | relative_url }}" type="video/mp4">
+  <source src="{{ '/assets/vid/chip-chat/FPGA-qtcore-A1.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
