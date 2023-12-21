@@ -515,7 +515,7 @@ To close the design loop, we synthesized test set T1 from the ChatGPT-4 conversa
 The modes of failure were less consistent with ChatGPT-3.5 than they were for ChatGPT-4, with a wide variety of issues introduced between each conversation and benchmark.
 It required corrections to the design and the testbenches far more often than ChatGPT-4. 
 
-## Observation and concluding remarks
+## Observations
 
 Only ChatGPT-4 performed adequately for the purposes of writing Verilog, though it still required human feedback for most conversations to be both successful and compliant with the given specifications.
 When fixing errors, ChatGPT-4 would often require several messages to fix minor errors, as it struggled to understand exactly what specific Verilog lines would cause the error messages from iverilog.
@@ -956,12 +956,7 @@ Here's the full details:
 
 ### Example programming using the assembler
 
-Writing assembly programs for QTCore-C1 is simplified by the assembler produced by GPT-4. First, we define a additional meta-instructions:
-
-### Meta-instructions:
-
-- DATA: Define raw data to be loaded at the current address
-- Operand (8 bits): 8-bit data value
+Writing assembly programs for QTCore-C1 is simplified by the assembler produced by GPT-4. 
 
 ### Presenting programs to the assembler:
 
@@ -1028,7 +1023,7 @@ You can see all the other juicy details at the [QTcore-C1 GitHub](https://github
 
 Well, we entered the contest (submission was finally finalized 2 hours before the deadline at 6am on the due morning), and - [the QTcore-C1 won](https://efabless.com/genai/challenges/1), woohoo! This meant that the chip would get taped out, and I would get copies of the silicon in the mail!
 
-I did a webinar with Efabless afterwards, on how the process works, my motivation, and how you can get started in this area as well - [https://www.youtube.com/watch?v=-R7limdUyts](Youtube link), embedded video below:
+I did a webinar with Efabless afterwards, on how the process works, my motivation, and how you can get started in this area as well - [Youtube link](https://www.youtube.com/watch?v=-R7limdUyts), embedded video below:
 
 <iframe width="420" height="315"
 src="https://www.youtube.com/embed/-R7limdUyts">
@@ -1038,7 +1033,7 @@ I then joined their panels as a judge for the second and third iterations of the
 
 And then, just two weeks ago, I got a parcel in the mail, and...
 
-![efabless chip.]({{ 'assets/img/chip-chat/chip-efabless.jpg' | relative_url }}){: .mx-auto.d-block :}
+![efabless chip.]({{ 'assets/img/chip-chat/chip-efabless.jpg' | relative_url }}){: .mx-auto.d-block width="70%":}
 
 It had arrived! (To be precise, I received _ten_ chips on these little carrier boards, and _fifty_ chips which I have to solder myself!)
 
@@ -1048,7 +1043,7 @@ The first thing I needed to test was that I could actually talk to my chip, just
 
 After one devastating experiment where nothing happened and I thought the chip didn't work, I realized I needed to do one extra configuration step to enable the caravel userspace wishbone bus, and then I ran the program, and -
 
-![it works]({{ 'assets/img/chip-chat/basic-test-pass.jpg' | relative_url }}){: .mx-auto.d-block :}
+![it works]({{ 'assets/img/chip-chat/basic-test-pass.png' | relative_url }}){: .mx-auto.d-block :}
 
 It works!
 
@@ -1071,4 +1066,4 @@ I don't think I am alone in this view, either. In recent months, RapidSilicon ha
 
 I'm really excited for what comes next.
 
-And as for me, I'll keep tinkering - I've definitely got some more experiments I want to run and more places I can see LLMs being useful in hardware design.
+And as for me, I'll keep tinkering - I've definitely got some more experiments I want to run and more places I can see LLMs being useful in hardware design!
