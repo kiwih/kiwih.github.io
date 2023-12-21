@@ -97,7 +97,9 @@ The returned designs varied in quality, and we found that only ChatGPT-4 could p
 
 <details><summary>ChatGPT-4</summary>
 
-~~~verilog
+<pre>
+
+```verilog
 module shift_register (
     input wire clk,
     input wire reset_n,
@@ -115,7 +117,9 @@ always @(posedge clk or negedge reset_n) begin
 end
 
 endmodule
-~~~
+```
+
+</pre>
 </details>
 It works!
 
