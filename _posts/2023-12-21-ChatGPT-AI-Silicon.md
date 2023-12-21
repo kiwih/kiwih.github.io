@@ -6,11 +6,13 @@ share-img: 'assets/img/chip-chat/chip-chat-general-idea.drawio.png'
 tags: [AI, EDA, Verilog]
 ---
 
-TL;DR: I architectured a microcontroller chip using ChatGPT and it was taped out. Now it controls my christmas tree.
+TL;DR: I architectured a microcontroller chip in early 2023 using ChatGPT and it was taped out. Now it controls my christmas tree.
 
-This was the first time anyone had used an LLM to design silicon.
+This was the first time anyone had used an LLM to design silicon. Our paper appeared at [MLCAD'23](https://ieeexplore.ieee.org/document/10299874/), [arXiv link](https://arxiv.org/abs/2305.13243). 
 
-<video width='60%' controls>
+All chat logs are provided [in our repository](https://zenodo.org/records/7953725).
+
+<video width='50%' controls>
   <source src="{{ '/assets/vid/chip-chat/chip-chat.mp4' | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -64,7 +66,7 @@ These were the benchmarks that we came up with:
 
 Each benchmark had a short specification describing it and its I/O, as well as the correct intended behaviour.
 
-An NYU Ph.D. student then sat with the four chosen LLMs (ChatGPT-3.5, ChatGPT-4, Bard, and HuggingChat) and performed the process described earlier, shepherding the LLM through generating first the designs and then the testbenches, before simulating them together, and feeding back any errors. 
+An NYU Ph.D. student, Jason Blocklove, then sat with the four chosen LLMs (ChatGPT-3.5, ChatGPT-4, Bard, and HuggingChat) and performed the process described earlier, shepherding the LLM through generating first the designs and then the testbenches, before simulating them together, and feeding back any errors. 
 
 Sometimes, special circumstances needed to be taken into account within the conversations.
 Due to the limits placed on how much output a model could give in a single response, files or explanations would often be cut off from finishing; in those cases the model would be prompted with ``Please continue''.
@@ -207,7 +209,8 @@ Can you create a Verilog testbench for this design? It should be self-checking a
 Here's the complete flow of a conversation using ChatGPT-4.
 
 [expand]
-### USER
+**USER:**
+
 I am trying to create a Verilog model for a shift register. It must meet the following specifications:
 ```
 - Inputs:
@@ -221,7 +224,8 @@ I am trying to create a Verilog model for a shift register. It must meet the fol
 
 How would I write a design that meets these specifications?
 
-### ASSISTANT
+**ASSISTANT:**
+
 To create a Verilog model for an 8-bit shift register meeting the given specifications, you can follow this example:
 
 ```verilog
@@ -253,10 +257,12 @@ Here's a quick breakdown of the code:
 
 This design meets the given specifications and provides an 8-bit shift register with the desired inputs and outputs.
 
-### USER
+**USER:**
+
 Can you create a Verilog testbench for this design? It should be self-checking and made to work with iverilog for simulation and validation. If test cases should fail, the testbench should provide enough information that the error can be found and resolved.
 
-### ASSISTANT
+**ASSISTANT:**
+
 Certainly! Here's a self-checking testbench for the 8-bit shift register design using iverilog:
 
 ```verilog
@@ -353,7 +359,8 @@ This testbench covers four test cases:
 
 The testbench provides error messages if any of the test cases fail. If all test cases pass
 
-### USER
+**USER:**
+
 When running the simulation it gives the following output. Please provide fixed code.
 ```
 Error: Test case 1 failed. Expected: 10000000, Received: 01111111
@@ -361,7 +368,9 @@ Error: Test case 2 failed. Expected: 10101010, Received: 01010101
 Error: Test case 3 failed. Expected: 10101010, Received: 01010101
 All test cases passed!
 ```
-### ASSISTANT
+
+**ASSISTANT:**
+
 Apologies for the confusion. It appears that the test cases are failing due to incorrect output expectations. I made a mistake in the test case expectations. Let's correct the test cases and update the testbench code:
 
 ```verilog
@@ -455,7 +464,7 @@ I updated the expected outputs for test cases 1, 2, and 3 based on the correct b
 
 ## Basic results
 
-Overall, only ChatGPT-3.5 and -4 could produce designs reliably. We finished off the full suite of benchmarks 3 times, and got the following results:
+Overall, only ChatGPT-3.5 and -4 could produce designs reliably, so we only ended up analyzing these two models and excluded Bard and HuggingChat from our results. Using the two OpenAI models we finished off the full suite of benchmarks 3 times, and got the following results:
 
 _Nomenclature_:
 
@@ -467,32 +476,7 @@ Once the design compiles and simulates with no failing test cases, it is conside
 If however advanced feedback does not fix the error or should the user need to write any Verilog to address the error, the test is considered a failure.
 The test is also considered a failure if the conversation exceeds 25 messages, matching the OpenAI rate limit on ChatGPT-4 messages per 3 hours.
 
-| Benchmark          | Test Set | Outcome (ChatGPT-4) | Compliant (ChatGPT-4) | # Messages (ChatGPT-4) | Outcome (ChatGPT-3.5) | Compliant (ChatGPT-3.5) | # Messages (ChatGPT-3.5) |
-|--------------------|----------|---------------------|-----------------------|------------------------|-----------------------|-------------------------|--------------------------|
-| **Shift Register** | T1       | TF                  | ✔                     | 3                      | SHF                   | ✔                       | 13                       |
-| Shift Register     | T2       | TF                  | ✔                     | 9                      | FAIL                  | -                       | 25                       |
-| Shift Register     | T3       | AHF                 | ✔                     | 15                     | FAIL                  | -                       | 11                       |
-| **Sequence Gen.**  | T1       | AHF                 | ✔                     | 14                     | FAIL                  | -                       | 25                       |
-| Sequence Gen.      | T2       | TF                  | ✔                     | 4                      | FAIL                  | -                       | 7                        |
-| Sequence Gen.      | T3       | AHF                 | ✔                     | 20                     | FAIL                  | -                       | 25                       |
-| **Sequence Det.**  | T1       | FAIL                | -                     | 24                     | FAIL                  | -                       | 21                       |
-| Sequence Det.      | T2       | SHF                 | ✔                     | 9                      | SHF                   | ✘                       | 8                        |
-| Sequence Det.      | T3       | TF                  | ✔                     | 13                     | SHF                   | ✘                       | 8                        |
-| **ABRO**           | T1       | FAIL                | -                     | 16                     | FAIL                  | -                       | 25                       |
-| ABRO               | T2       | AHF                 | ✔                     | 20                     | MHF                   | ✔                       | 15                       |
-| ABRO               | T3       | TF                  | ✔                     | 12                     | NFN                   | ✘                       | 3                        |
-| **LFSR**           | T1       | TF                  | ✔                     | 12                     | FAIL                  | -                       | 25                       |
-| LFSR               | T2       | SHF                 | ✔                     | 7                      | TF                    | ✔                       | 4                        |
-| LFSR               | T3       | SHF                 | ✔                     | 9                      | FAIL                  | -                       | 11                       |
-| **Binary to BCD**  | T1       | TF                  | ✔                     | 4                      | SHF                   | ✘                       | 8                        |
-| Binary to BCD      | T2       | NFN                 | ✔                     | 2                      | FAIL                  | -                       | 12                       |
-| Binary to BCD      | T3       | SHF                 | ✔                     | 9                      | TF                    | ✘                       | 4                        |
-| **Traffic Light**  | T1       | TF                  | ✔                     | 4                      | FAIL                  | -                       | 25                       |
-| Traffic Light      | T2       | SHF                 | ✔                     | 12                     | FAIL                  | -                       | 13                       |
-| Traffic Light      | T3       | TF                  | ✔                     | 5                      | FAIL                  | -                       | 18                       |
-| **Dice Roller**    | T1       | SHF                 | ✘                     | 8                      | MHF                   | ✘                       | 9                        |
-| Dice Roller        | T2       | SHF                 | ✔                     | 9                      | FAIL                  | -                       | 25                       |
-| Dice Roller        | T3       | SHF                 | ✘                     | 18                     | NFN                   | ✘                       | 3                        |
+![benchmark results.]({{ 'assets/img/chip-chat/benchmark-results.png' | relative_url }}){: .mx-auto.d-block :}
 
 You can actually see [all the chat logs in our repository](https://zenodo.org/records/7953725) (scripted benchmarks folder).
 
@@ -511,7 +495,7 @@ It required corrections to the design and the testbenches far more often than Ch
 
 ## Observation and concluding remarks
 
-Of the four LLMs examined with the challenge benchmarks, only ChatGPT-4 performed adequately, though it still required human feedback for most conversations to be both successful and compliant with the given specifications.
+Only ChatGPT-4 performed adequately for the purposes of writing Verilog, though it still required human feedback for most conversations to be both successful and compliant with the given specifications.
 When fixing errors, ChatGPT-4 would often require several messages to fix minor errors, as it struggled to understand exactly what specific Verilog lines would cause the error messages from iverilog.
 The errors it would add also tended to repeat themselves between conversations quite often.
 
@@ -528,6 +512,303 @@ I will note here that I am an experienced engineer in the design of small, toy/a
 
 This was what I wanted ChatGPT-4 to build here. Knowing that we were working with extreme space limitations, I decided on an 8-bit accumulator-based architecture. Using a Von Neumann design (shared program and data memory) would save additional space, and then restricing that shared memory to just 32 bytes was my guess at something that would fit.
 
-I decided that ChatGPT-4 would write every line of functional Verilog, but given the difficulties 
+I decided that ChatGPT-4 would write every line of functional Verilog, but given the difficulties we had faced with verification and testbenches I would produce those and run and interpret the simulations etc. 
+
+I began with:
+
+```
+Let us make a brand new microprocessor design together. We're severely constrained on space and I/O. We have to fit in 1000 standard cells of an ASIC, so I think we will need to restrict ourselves to an accumulator based 8-bit architecture with no multi-byte instructions. Given this, how do you think we should begin?
+```
+
+The microprocessor design process began by defining the Instruction Set Architecture (ISA), then implementing components that the ISA would require, before combining those components in a datapath with a control unit to manage them. Simulation and testing were used to find bugs which were then repaired.
+
+### Structuring the conversations
+
+**Conversation threading**: Given that ChatGPT-4, like other LLMs, has a fixed-size context window, we assumed that the best way to prompt the model is by breaking up the larger design into subtasks which each had its own 'conversation thread' in the interface. This keeps the overall length below 16,000 characters. A proprietary back-end method performs some kind of text reduction when the length exceeds this, but details on its implementation are scarce. 
+
+Since ChatGPT-4 does not share information between threads, the human engineer would copy the pertinent information from the previous thread into the new first message, growing a 'base specification' that slowly comes to define the processor. The base specification eventually included the ISA, a list of registers (Accumulator `ACC`, Program Counter `PC`, Instruction Register `IR`), the definitions for the memory bank, ALU, and control unit, and a high-level overview of what the processor should do in each cycle. Most of the information in this specification was produced by ChatGPT-4 and copy/pasted and lightly edited by the human.
+
+**Topics**: One topic per thread worked well for the early design stages of the processor (with one exception, where the ALU was designed in the same thread as the multi-cycle processor clock cycle timing plan). However, once the processor got to the simulation stage and we ran programs on it, we found mistakes and bugs in the specification and implementation. Rather than starting new conversation threads and rebuilding the previous context, the design engineer instead chose to continue previous conversation threads where appropriate.
+We illustrate this in our flow map below, where the 'Cont. T. ID' column indicates if they 'Continued' a previous thread (and if so, which thread).
+
+![benchmark results.]({{ 'assets/img/chip-chat/chat-flow-map.png' | relative_url }}){: .mx-auto.d-block :}
+
+**Restarts**: Sometimes ChatGPT-4 outputs suboptimal responses. If so, the engineer has two options: (1) continue the conversation and nudge it to fix the response, or (2) use the interface to force ChatGPT-4 to 'restart' the response, i.e. regenerating the result by pretending the previous answer never occured. Choosing between these has trade-offs and requires professional judgement: continuing the conversation allows for the user to specify which parts of the previous response are good or bad, but regeneration will keep the overall conversation shorter and more succinct (valuable considering the finite context window size). 
+
+Still, as can be seen from the '# Restart' column in the result table, the number of restarts tended to decrease as I grew more experienced with using ChatGPT-4, with Topics 00-07 having 57 restarts compared to Topics 08-18 having just 8. The highest individual number of restarts on a single message was 10, in Topic 04 (Control signal planning) which has the following message:
+
+[expand]
+```
+This looks excellent. According to this list, please produce the module definition for a control unit in Verilog which could operate the processor datapath. Please comment the purpose of each I/O. If a signal is for controlling a multiplexer, please also comment what each possible value should correspond to in the datapath.
+```
+[/expand]
+
+This was a difficult prompt because it asks for a specific kind of output with a significant amount of detail, but eventually yielded a satisfactory answer as listed here:
+
+[expand]
+```verilog
+
+module control_unit (
+    // Clock input
+    input wire clk, 
+    // Reset input
+    input wire rst, 
+    // Input from the Instruction Register (IR)
+    input wire [7:0] instruction,  
+    // Enables writing to the PC
+    output wire PC_write_enable,   
+    // Selects the input for the PC multiplexer
+    // 00: PC + 1 (FETCH cycle, BEQ_FWD, BNE_FWD)
+    // 01: ACC (JMP, JSR)
+    // 10: PC - 3 (BEQ_BWD, BNE_BWD)
+    output wire [1:0] PC_mux_select, 
+    // Enables writing to the ACC       
+    output wire ACC_write_enable,  
+    // Selects the input for the ACC multiplexer
+    // 00: ALU output
+    // 01: Memory contents (LDA, LDAR)
+    // 10: PC (JSR)
+    output wire [1:0] ACC_mux_select,
+    // Enables loading new instruction into IR from memory           
+    output wire IR_load_enable,    
+    // Control signal specifying the ALU operation
+    output wire [3:0] ALU_opcode,  
+    // Selects input B for the ALU multiplexer
+    // 0: Memory contents (ADD, SUB, AND, OR, XOR)
+    // 1: Immediate (ADDI)
+    output wire ALU_inputB_mux_select, 
+    // Enables writing to memory (STA)
+    output wire Memory_write_enable, 
+    // Selects input for memory address multiplexer
+    // 00: IR[4:0] (LDA, STA, ADD, SUB, AND, OR, XOR)
+    // 01: ACC (LDAR)
+    // 10: PC (Instruction fetching)
+    output wire [1:0] Memory_address_mux_select                
+);
+
+```
+[/expand]
+
+**Bug repair**: After errors were encountered, we would use ChatGPT-4 to repair them. An example of this is presented here. This is based on Conversation 15, and demonstrates how an error in the shift register primitive was resolved.
+
+[expand]
+
+### 15 - SHIFT REGISTER BUG FIX
+
+**USER:**
+
+I have the following shift_register written in Verilog:
+```
+module shift_register #(
+    parameter WIDTH = 8
+)(
+    input wire clk,
+    input wire rst,
+    input wire enable,
+    input wire [WIDTH-1:0] data_in,
+    output wire [WIDTH-1:0] data_out,
+    input wire scan_enable,
+    input wire scan_in,
+    output wire scan_out
+);
+
+    reg [WIDTH-1:0] internal_data;
+
+    // Shift register operation
+    always @(posedge clk) begin
+        if (rst) begin
+            internal_data <= {WIDTH{1'b0}};
+        end else if (enable) begin
+            internal_data <= data_in;
+        end else if (scan_enable) begin
+            internal_data <= {internal_data[WIDTH-2:0], scan_in};
+        end
+    end
+
+    // Output assignment
+    assign data_out = internal_data;
+    assign scan_out = internal_data[WIDTH-1];
+
+endmodule
+```
+Unfortunately, it doesn't work if the WIDTH is set to 1. Can you fix it?
+
+**ASSISTANT:**
+
+Sure! The issue arises from the part where you define the concatenation of the internal_data register when `scan_enable` is high. When the WIDTH is set to 1, the range `internal_data[WIDTH-2:0]` will cause an out-of-bounds access to the internal_data register.
+
+To fix this, you can use a conditional expression to handle the case where WIDTH is set to 1. Here's the updated code:
+
+```verilog
+module shift_register #(
+    parameter WIDTH = 8
+)(
+    input wire clk,
+    input wire rst,
+    input wire enable,
+    input wire [WIDTH-1:0] data_in,
+    output wire [WIDTH-1:0] data_out,
+    input wire scan_enable,
+    input wire scan_in,
+    output wire scan_out
+);
+
+    reg [WIDTH-1:0] internal_data;
+
+    // Shift register operation
+    always @(posedge clk) begin
+        if (rst) begin
+            internal_data <= {WIDTH{1'b0}};
+        end else if (enable) begin
+            internal_data <= data_in;
+        end else if (scan_enable) begin
+            if (WIDTH == 1) begin
+                internal_data <= scan_in;
+            end else begin
+                internal_data <= {internal_data[WIDTH-2:0], scan_in};
+            end
+        end
+    end
+
+    // Output assignment
+    assign data_out = internal_data;
+    assign scan_out = internal_data[WIDTH-1];
+
+endmodule
+```
+
+Now, the code will properly handle the case where WIDTH is set to 1.
+
+**USER:**
+
+Thanks! Can you also make it so scan_enable has a higher priority than the normal enable?
+
+**ASSISTANT:**
+
+Sure! To give the `scan_enable` signal a higher priority over the `enable` signal, you can change the order of the conditions in the always block. Here's the updated code:
+
+```verilog
+module shift_register #(
+    parameter WIDTH = 8
+)(
+    input wire clk,
+    input wire rst,
+    input wire enable,
+    input wire [WIDTH-1:0] data_in,
+    output wire [WIDTH-1:0] data_out,
+    input wire scan_enable,
+    input wire scan_in,
+    output wire scan_out
+);
+
+    reg [WIDTH-1:0] internal_data;
+
+    // Shift register operation
+    always @(posedge clk) begin
+        if (rst) begin
+            internal_data <= {WIDTH{1'b0}};
+        end else if (scan_enable) begin
+            if (WIDTH == 1) begin
+                internal_data <= scan_in;
+            end else begin
+                internal_data <= {internal_data[WIDTH-2:0], scan_in};
+            end
+        end else if (enable) begin
+            internal_data <= data_in;
+        end
+    end
+
+    // Output assignment
+    assign data_out = internal_data;
+    assign scan_out = internal_data[WIDTH-1];
+
+endmodule
+```
+
+Now, the `scan_enable` signal has a higher priority over the `enable` signal. When both signals are high, the shift register will operate in scan mode instead of the normal mode.
+
+[/expand]
+
+### The Developed Instruction Set Architecture (ISA)
+
+Once again, [all the chat logs are in our repository](https://zenodo.org/records/7953725), this time in the free-chat-gpt4-tt03 folder.
+
+The ISA co-generated with ChatGPT-4 in Conversation 00 (and updated in 10) is presented in the following table:
+
+![ISA.]({{ 'assets/img/chip-chat/isa.png' | relative_url }}){: .mx-auto.d-block :}
+
+It is a relatively straightforward accumulator-based design with some notable features: 
+1. given the size constraints, the memory-access `Instructions with Variable-Data Operands' use just five bits to specify the memory address, meaning the processor would be limited to an absolute maximum of 32 bytes of memory. 
+2. There is just one instruction with an immediate-data encoding. 
+3. The instructions use the full 256 possible byte encodings. 
+4. The JSR instruction makes it possible to implement subroutine calls, albeit a little awkwardly (there's no stack pointer).
+5. The branch instructions are restrictive but useful.  Skipping two instructions backwards allows for efficient polling (e.g. load an input, mask it for relevant bit, then check if 0 or not). Skipping 3 instructions forwards allows to skip over the instructions needed for a JMP or JSR. These were designed over a number of iterations, including a later modification (Conversations 10-12, the 'branch update') which increased the jump forwards from 2 instructions to 3 after during simulation I realized that we could not easily encode JMP/JSR in just 2 instructions. 
+6. The LDAR instruction allows for pointer-like dereferences for memory loads. This enabled us to efficiently use a table of constants in our memory map (added in Conversation 17) to convert binary values into LED patterns for a 7-segment display.
+
+When attempting to write programs in it, it feels like a variant of what might have been used for a PIC microcontroller family. ChatGPT-4 actually wrote the assembler for me as well, which I could have made better (it is truly awful to use, but it does work - See conversation 09). 
+
+I called the implementation for this processor the QTCore-A1 (cutie core).
+
+This is the datapath that eventually resulted (control signals are indicated with dotted lines - a moore-type multicycle FSM was used to control them). When designing the processor, I made sure that every register was also connected via a scan chain (also designed by ChatGPT-4!). This meant I could program the design once implemented, and it was also how I loaded my test programs during simulation.
+
+![qtcore-A1 datapath.]({{ 'assets/img/chip-chat/isa.png' | relative_url }}){: .mx-auto.d-block :}
+
+I tried to synthesize using OpenLane, but drat - the design would not fit in the 1000 standard cells! The easiest thing to do was to keep trimming the memory, which I did over and over again, until I eventually hit the magic number, and managed to get just 17 bytes of combined data and instruction memory. Yikes! 
+
+After synthesis by OpenLane, this is what the GDS looked like:
+
+![qtcore-A1 synthesis.]({{ 'assets/img/chip-chat/a1-processor-synth.png' | relative_url }}){: .mx-auto.d-block :}
+
+I wrote a few test programs, and soon realized I needed a few recurring constant values. After playing, I also realized that constant values in the memory map didn't take up as much space as registers! So I managed to fit in a few constant helper values, including "1" and "0" into the memory map.
+
+This meant I could write this little program in the cursed assembly language for a processor that I downloaded to an FPGA (CMod-A7) - although I also had to implement a programmer, which I did using an STM32! (Don't mind the fact that this video is taken on a chair, I was literally building this in a conference theatre while attending a talk - the Tiny Tapeout deadline was fast approaching).
+
+```
+; this program tests the btn and LEDs
+; after each BTN is low then BTN is high it will toggle the LEDs between 
+; two values
+; BTNs and LEDS are at address 17, btn at LSB
+0: LDA 17 ; load the btn and LEDS
+1: AND 16 ; mask the btn
+2: BNE_BWD ; if btn&1 is not zero then branch back to 0
+3: LDA 17 ; load the btn and LEDS
+4: AND 16 ; mask the btn
+5: BEQ_BWD ; if btn&1 is zero then branch back to 3
+;
+; the button has now done a transition from low to high
+;
+6: LDA 14 ; load the counter toggle
+7: XOR 16 ; toggle the counter using the btn mask
+8: STA 14 ; store the counter value
+9: ADDI 14 ; get the counter value offset (if 0, will be 14 (which is 0), if 1, 15)
+10: LDAR ; load the counter LED pattern
+11: STA 17 ; store the LED pattern
+12: CLR
+13: JMP ; returns to address 0
+;
+; data
+;
+14: DATA 0; toggle and LED pattern 0
+15: DATA 24; LED pattern of ON (test for led_out=value 12, since 24>>1 == 12)
+16: DATA 1 ; btn and counter mask
+```
+
+Here it is working!
+<video width='50%' controls>
+  <source src="{{ '/assets/vid/chip-chat/chip-chat.mp4' | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+So, I was happy, it worked in simulation and on an FPGA, so I happily sent it off to Tiny Tapeout, and then we released our paper to the arXiv.
+
+# Part 5: The Efabless Competition and the QTcore-C1
+
+Our initial feedback for the work was brilliant, and Matt Venn of Tiny Tapeout interviewed myself and Jason! [Youtube link](https://www.youtube.com/watch?v=6vC3t_soJok)
+
+<iframe width="420" height="315"
+src="https://www.youtube.com/embed/6vC3t_soJok">
+</iframe> 
+
+This received a lot of attention! We were contacted by a number of different companies in the EDA space including a few you have most definitely heard of. 
 
 **To be continued**
