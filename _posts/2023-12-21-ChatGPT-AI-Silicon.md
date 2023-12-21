@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 'Chip-Chat: My journey making the world's first LLM-architected and taped-out silicon design'
+title: "Chip-Chat: My journey making the world's first LLM-architected and taped-out silicon design"
 subtitle: Using ChatGPT to write Verilog and produce a chip for my christmas tree
 share-img: 'assets/img/chip-chat/chip-chat-general-idea.drawio.png'
 tags: [AI, EDA, Verilog]
@@ -206,6 +206,7 @@ Can you create a Verilog testbench for this design? It should be self-checking a
 
 Here's the complete flow of a conversation using ChatGPT-4.
 
+[expand]
 ### USER
 I am trying to create a Verilog model for a shift register. It must meet the following specifications:
 ```
@@ -450,6 +451,8 @@ endmodule
 
 I updated the expected outputs for test cases 1, 2, and 3 based on the correct behavior of the shift register. Now, when you run the simulation, it should display "All test cases passed!" without any errors.
 
+[/expand]
+
 ## Basic results
 
 Overall, only ChatGPT-3.5 and -4 could produce designs reliably. We finished off the full suite of benchmarks 3 times, and got the following results:
@@ -519,4 +522,12 @@ ChatGPT-3.5, on the other hand, struggled with both testbenches and functional d
 
 # Part 4: Something more complex: The QTcore-A1
 
-**to be continued**
+Having observed and helped the Ph.D. student with ChatGPT-4 during the benchmarks, I was now ready to take on a larger challenge, and set out to get it to create the components for a microcontroller. I wanted to know if unstructured conversations could lead to greater levels of performance from the model, using a kind of mutual creativity to write the design faster.
+
+I will note here that I am an experienced engineer in the design of small, toy/academic processors, having taught students in this area for multiple years at the University of Auckland, New York University, and now at my current institution the University of New South Wales in Sydney Australia. 
+
+This was what I wanted ChatGPT-4 to build here. Knowing that we were working with extreme space limitations, I decided on an 8-bit accumulator-based architecture. Using a Von Neumann design (shared program and data memory) would save additional space, and then restricing that shared memory to just 32 bytes was my guess at something that would fit.
+
+I decided that ChatGPT-4 would write every line of functional Verilog, but given the difficulties 
+
+**To be continued**
