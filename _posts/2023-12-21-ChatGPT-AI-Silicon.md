@@ -229,9 +229,9 @@ Here's the complete flow of a conversation using ChatGPT-4.
 
 <details><summary>Click to expand</summary>
 
-**USER:**
+<b>USER:</b><br />
 
-I am trying to create a Verilog model for a shift register. It must meet the following specifications:
+I am trying to create a Verilog model for a shift register. It must meet the following specifications:<br/>
 <pre>
 - Inputs:
 	- Clock
@@ -242,11 +242,11 @@ I am trying to create a Verilog model for a shift register. It must meet the fol
 	- Data (8 bits)
 </pre>
 
-How would I write a design that meets these specifications?
+How would I write a design that meets these specifications?<br/>
 
-**ASSISTANT:**
+<b>ASSISTANT:</b><br />
 
-To create a Verilog model for an 8-bit shift register meeting the given specifications, you can follow this example:
+To create a Verilog model for an 8-bit shift register meeting the given specifications, you can follow this example:<br/>
 
 {% highlight verilog %}
 module shift_register (
@@ -268,22 +268,22 @@ end
 endmodule
 {% endhighlight %}
 
-Here's a quick breakdown of the code:
+Here's a quick breakdown of the code:<br/>
 
-1. Define the `shift_register` module with the specified inputs and outputs.
-2. Create an always block that responds to the rising edge of the clock (`posedge clk`) or the falling edge of the active-low reset (`negedge reset_n`).
-3. Within the always block, check if the reset signal is low (`!reset_n`). If so, clear the 8-bit output register (`data_out <= 8'b0`).
-4. If the reset signal is not low, check if the shift enable signal is high. If so, shift the data in the output register to the left and insert the new data bit at the least significant bit position (`data_out <= {data_out[6:0], data_in}`).
+1. Define the `shift_register` module with the specified inputs and outputs.<br/>
+2. Create an always block that responds to the rising edge of the clock (`posedge clk`) or the falling edge of the active-low reset (`negedge reset_n`).<br/>
+3. Within the always block, check if the reset signal is low (`!reset_n`). If so, clear the 8-bit output register (`data_out <= 8'b0`).<br/>
+4. If the reset signal is not low, check if the shift enable signal is high. If so, shift the data in the output register to the left and insert the new data bit at the least significant bit position (`data_out <= {data_out[6:0], data_in}`).<br/>
+<br/>
+This design meets the given specifications and provides an 8-bit shift register with the desired inputs and outputs.<br/>
 
-This design meets the given specifications and provides an 8-bit shift register with the desired inputs and outputs.
+<b>USER:</b><br/>
 
-**USER:**
+Can you create a Verilog testbench for this design? It should be self-checking and made to work with iverilog for simulation and validation. If test cases should fail, the testbench should provide enough information that the error can be found and resolved.<br/>
 
-Can you create a Verilog testbench for this design? It should be self-checking and made to work with iverilog for simulation and validation. If test cases should fail, the testbench should provide enough information that the error can be found and resolved.
+<b>ASSISTANT:</b><br/>
 
-**ASSISTANT:**
-
-Certainly! Here's a self-checking testbench for the 8-bit shift register design using iverilog:
+Certainly! Here's a self-checking testbench for the 8-bit shift register design using iverilog:<br/>
 
 {% highlight verilog %}
 `timescale 1ns/1ps
@@ -370,18 +370,18 @@ module tb_shift_register;
 endmodule
 {% endhighlight %}
 
-This testbench covers four test cases:
+This testbench covers four test cases:<br/>
 
-1. Simple shift: Shifts 1 into the register and checks the output.
-2. Shift with alternating bits: Shifts a pattern of alternating bits and checks the output.
-3. Shift without shift_enable: Verifies that the shift register does not shift without the shift_enable signal.
-4. Reset during shift operation: Checks if the register resets correctly during a shift operation.
+1. Simple shift: Shifts 1 into the register and checks the output.<br/>
+2. Shift with alternating bits: Shifts a pattern of alternating bits and checks the output.<br/>
+3. Shift without shift_enable: Verifies that the shift register does not shift without the shift_enable signal.<br/>
+4. Reset during shift operation: Checks if the register resets correctly during a shift operation.<br/>
 
-The testbench provides error messages if any of the test cases fail. If all test cases pass
+The testbench provides error messages if any of the test cases fail. If all test cases pass<br/>
 
-**USER:**
+<b>USER:</b><br/>
 
-When running the simulation it gives the following output. Please provide fixed code.
+When running the simulation it gives the following output. Please provide fixed code.<br/>
 <pre>
 Error: Test case 1 failed. Expected: 10000000, Received: 01111111
 Error: Test case 2 failed. Expected: 10101010, Received: 01010101
@@ -389,9 +389,9 @@ Error: Test case 3 failed. Expected: 10101010, Received: 01010101
 All test cases passed!
 </pre>
 
-**ASSISTANT:**
+<b>ASSISTANT:**</b><br/>
 
-Apologies for the confusion. It appears that the test cases are failing due to incorrect output expectations. I made a mistake in the test case expectations. Let's correct the test cases and update the testbench code:
+Apologies for the confusion. It appears that the test cases are failing due to incorrect output expectations. I made a mistake in the test case expectations. Let's correct the test cases and update the testbench code:<br/>
 
 {% highlight verilog %}
 `timescale 1ns/1ps
@@ -478,9 +478,11 @@ module tb_shift_register;
 endmodule
 {% endhighlight %}
 
-I updated the expected outputs for test cases 1, 2, and 3 based on the correct behavior of the shift register. Now, when you run the simulation, it should display "All test cases passed!" without any errors.
+I updated the expected outputs for test cases 1, 2, and 3 based on the correct behavior of the shift register. Now, when you run the simulation, it should display "All test cases passed!" without any errors.<br/>
 
 </details>
+
+(And it did pass without errors!)
 
 ## Basic results
 
