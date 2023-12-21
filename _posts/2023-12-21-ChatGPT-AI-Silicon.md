@@ -78,7 +78,7 @@ If these comments would prevent functionality, such as leaving an incomplete arr
 
 A design prompt here looked something like this:
 
-```
+~~~
 I am trying to create a Verilog model for a shift register. It must meet the following specifications:
 
 - Inputs:
@@ -90,13 +90,14 @@ I am trying to create a Verilog model for a shift register. It must meet the fol
 	- Data (8 bits)
 
 How would I write a design that meets these specifications?
-```
+~~~
+
 
 The returned designs varied in quality, and we found that only ChatGPT-4 could produce designs reliably. Here's an example from each LLM for the first design, a shift register:
 
-### ChatGPT-4:
+<details><summary>ChatGPT-4</summary>
 
-```verilog
+~~~verilog
 module shift_register (
     input wire clk,
     input wire reset_n,
@@ -114,7 +115,9 @@ always @(posedge clk or negedge reset_n) begin
 end
 
 endmodule
-```
+~~~
+</details>
+It works!
 
 
 ### ChatGPT-3.5:
@@ -138,11 +141,10 @@ end
 
 endmodule
 ```
+It works!
 
 
 ### Bard:
-
-(notice the error in the definition of the `data` input!)
 
 ```verilog
 module shift_register (
@@ -165,10 +167,9 @@ module shift_register (
 
 endmodule
 ```
+It does not work! Notice the error in the definition of the `data` input!
 
 ### HuggingChat
-
-(Oh dear)
 
 ```verilog
 module ShiftRegister(input clk, input rst_n, input data_in, input shft_en, output reg [7:0] q);
@@ -197,6 +198,8 @@ always @(*) begin
 
 ```
 
+Oh dear... It appears to have gone insane :(
+
 ## Testbenches
 
 Once we had a design, we had to prompt for a testbench:
@@ -208,7 +211,7 @@ Can you create a Verilog testbench for this design? It should be self-checking a
 
 Here's the complete flow of a conversation using ChatGPT-4.
 
-[expand]
+<details><summary>Click to expand</summary>
 **USER:**
 
 I am trying to create a Verilog model for a shift register. It must meet the following specifications:
@@ -460,7 +463,7 @@ endmodule
 
 I updated the expected outputs for test cases 1, 2, and 3 based on the correct behavior of the shift register. Now, when you run the simulation, it should display "All test cases passed!" without any errors.
 
-[/expand]
+</details>
 
 ## Basic results
 
@@ -537,15 +540,15 @@ We illustrate this in our flow map below, where the 'Cont. T. ID' column indicat
 
 Still, as can be seen from the '# Restart' column in the result table, the number of restarts tended to decrease as I grew more experienced with using ChatGPT-4, with Topics 00-07 having 57 restarts compared to Topics 08-18 having just 8. The highest individual number of restarts on a single message was 10, in Topic 04 (Control signal planning) which has the following message:
 
-[expand]
+<details><summary>Click to expand</summary>
 ```
 This looks excellent. According to this list, please produce the module definition for a control unit in Verilog which could operate the processor datapath. Please comment the purpose of each I/O. If a signal is for controlling a multiplexer, please also comment what each possible value should correspond to in the datapath.
 ```
-[/expand]
+</details>
 
 This was a difficult prompt because it asks for a specific kind of output with a significant amount of detail, but eventually yielded a satisfactory answer as listed here:
 
-[expand]
+<details><summary>Click to expand</summary>
 ```verilog
 
 module control_unit (
@@ -587,11 +590,11 @@ module control_unit (
 );
 
 ```
-[/expand]
+</details>
 
 **Bug repair**: After errors were encountered, we would use ChatGPT-4 to repair them. An example of this is presented here. This is based on Conversation 15, and demonstrates how an error in the shift register primitive was resolved.
 
-[expand]
+<details><summary>Click to expand</summary>
 
 ### 15 - SHIFT REGISTER BUG FIX
 
@@ -727,7 +730,7 @@ endmodule
 
 Now, the `scan_enable` signal has a higher priority over the `enable` signal. When both signals are high, the shift register will operate in scan mode instead of the normal mode.
 
-[/expand]
+</details>
 
 ### The Developed Instruction Set Architecture (ISA)
 
@@ -811,4 +814,18 @@ src="https://www.youtube.com/embed/6vC3t_soJok">
 
 This received a lot of attention! We were contacted by a number of different companies in the EDA space including a few you have most definitely heard of. 
 
-**To be continued**
+
+
+# Part 6: Receiving the silicon
+
+# Part 7: Basic tests and a christmas LED display!
+
+
+We came up with two approaches began a process to use LLMs for a new hardware design, which led me to a submission first to Tiny Tapeout, and then a few short weeks later, to the inaugural Efabless AI Generated Open Source Silicon Design contest. My entry, a crazy 8-bit microcontroller, won! This means it was taped out for free, and two weeks ago, I received it in the mail - faster than the Tiny Tapeout.
+
+Even better - the design works, and in
+
+I've discussed with multiple tech and EDA experts in industry and academia, and we're almost 100% certain that this chip represents the world's first tapeout where 100% of the hardware design language was written by a Large Language Model (ChatGPT, in this case).
+
+If this sounds 
+This blog post will
