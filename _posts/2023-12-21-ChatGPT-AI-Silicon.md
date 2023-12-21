@@ -97,8 +97,6 @@ The returned designs varied in quality, and we found that only ChatGPT-4 could p
 
 <details><summary>ChatGPT-4</summary>
 
-<pre>
-
 ```verilog
 module shift_register (
     input wire clk,
@@ -119,14 +117,13 @@ end
 endmodule
 ```
 
-</pre>
 </details>
 It works!
 
 
-### ChatGPT-3.5:
+<details><summary>ChatGPT-3.5</summary>
 
-```verilog
+~~~verilog
 module shift_register(
     input clk,
     input reset_n,
@@ -144,7 +141,9 @@ always @(posedge clk, negedge reset_n) begin
 end
 
 endmodule
-```
+~~~
+</details>
+
 It works!
 
 
