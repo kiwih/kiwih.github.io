@@ -42,7 +42,7 @@ h3 {
 h4 {
   font-size: 1.125rem;
 }
-a {
+a, summary {
   color: {{ site.link-col | default: "#008AFF" }};
 }
 a:hover,

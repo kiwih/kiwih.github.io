@@ -95,6 +95,8 @@ How would I write a design that meets these specifications?
 
 The returned designs varied in quality, and we found that only ChatGPT-4 could produce designs reliably. Here's an example from each LLM for the first design, a shift register:
 
+(These are clickable links, click to expand them)
+
 <details><summary>ChatGPT-4</summary>
 
 {% highlight verilog %}
@@ -125,7 +127,8 @@ It works!
 
 <details><summary>ChatGPT-3.5</summary>
 
-~~~verilog
+{% highlight verilog %}
+
 module shift_register(
     input clk,
     input reset_n,
@@ -143,15 +146,18 @@ always @(posedge clk, negedge reset_n) begin
 end
 
 endmodule
-~~~
+
+{% endhighlight %}
+
 </details>
 
 It works!
 
 
-### Bard:
+<details><summary>Bard</summary>
 
-```verilog
+{% highlight verilog %}
+
 module shift_register (
   input clk,
   input rst,
@@ -170,13 +176,16 @@ module shift_register (
     end
   end
 
-endmodule
-```
+{% endhighlight %}
+
+</details>
+
 It does not work! Notice the error in the definition of the `data` input!
 
-### HuggingChat
+<details><summary>HuggingChat</summary>
 
-```verilog
+{% highlight verilog %}
+
 module ShiftRegister(input clk, input rst_n, input data_in, input shft_en, output reg [7:0] q);
 
 // clock cycle of 22 ns
@@ -201,7 +210,9 @@ always @(*) begin
         $display("*** RESET ***\n");
         `#addr `addr:`addr[(int*) &POS]`pos ?(int) ( ((`addr`:addr[_ADDR]+ $_INTRTVALU)/2):1'b1;`addr:(addr<>`addr)`pos ,"Full scan done."));`cout!="Division by zero!" & '@( !_LUT) && (`grandpa')?(sprintf(`snip`,strlen(&_TI),($half*`cout>&1)'hash ()): snprintf(!reserve2((const char*)(type(*``cout)strlen`buf++->_GBIT])))) oe=tmp2 && tmp3 ? (__flash)((void*)realloc($(int*)(idx=(*(u*`ptr`)|(~(address><:sizeof(mtemp))))))) : (tmp1 || net$c) $(tie || leak$_parsefree()`load($_VO))`store(:)*value#stdh::)(`scan`:uint8_t RF)(addr<=&)> //Multiple errors\n');}  }}} end else if (!active_high && active)^begin €high end}begin€ pos bpoz,eu Europozize w; Pos file NewHdrPos Wrf `ezed=` Pos MaxRow=?[issued&tested]`specif bypa=end><changed *alpha sys varsub EOF varbb atEnd of call seq`,} else if (!endswith "\\") or myword`title==addr){droplocalvar hNextCutJob) ~sym\_name eof .~stop$; genw syncestrings TryEnd [] sizewriter(1)} if !=size( (`dynSym-NM compilersUDOVARSYMBOL))*~(uint2base NUMSERVER+" compiled")){clip0 clrw $addelem}\n\resources} subbytes wrdfmt removecomments Tr1ESran diff gred$\elleoformatfloat format----------------------`charTmpLim} Len rollover Leng len Len Non Rollovr OptimizationCenter}\n resident AsymptoticAspect}\np ResetOpt \All %par ID == PCI0 SPC ReconfigurationFeature supported } IF PROPRIETARY ASPECT=`port!\Plug
 
-```
+{% endhighlight %}
+
+</details>
 
 Oh dear... It appears to have gone insane :(
 
@@ -217,10 +228,11 @@ Can you create a Verilog testbench for this design? It should be self-checking a
 Here's the complete flow of a conversation using ChatGPT-4.
 
 <details><summary>Click to expand</summary>
+
 **USER:**
 
 I am trying to create a Verilog model for a shift register. It must meet the following specifications:
-```
+<pre>
 - Inputs:
 	- Clock
 	- Active-low reset
@@ -228,7 +240,7 @@ I am trying to create a Verilog model for a shift register. It must meet the fol
 	- Shift enable
 - Outputs:
 	- Data (8 bits)
-```
+</pre>
 
 How would I write a design that meets these specifications?
 
@@ -236,7 +248,7 @@ How would I write a design that meets these specifications?
 
 To create a Verilog model for an 8-bit shift register meeting the given specifications, you can follow this example:
 
-```verilog
+{% highlight verilog %}
 module shift_register (
     input wire clk,
     input wire reset_n,
@@ -254,7 +266,7 @@ always @(posedge clk or negedge reset_n) begin
 end
 
 endmodule
-```
+{% endhighlight %}
 
 Here's a quick breakdown of the code:
 
@@ -273,7 +285,7 @@ Can you create a Verilog testbench for this design? It should be self-checking a
 
 Certainly! Here's a self-checking testbench for the 8-bit shift register design using iverilog:
 
-```verilog
+{% highlight verilog %}
 `timescale 1ns/1ps
 
 module tb_shift_register;
@@ -356,7 +368,7 @@ module tb_shift_register;
     end
 
 endmodule
-```
+{% endhighlight %}
 
 This testbench covers four test cases:
 
@@ -370,18 +382,18 @@ The testbench provides error messages if any of the test cases fail. If all test
 **USER:**
 
 When running the simulation it gives the following output. Please provide fixed code.
-```
+<pre>
 Error: Test case 1 failed. Expected: 10000000, Received: 01111111
 Error: Test case 2 failed. Expected: 10101010, Received: 01010101
 Error: Test case 3 failed. Expected: 10101010, Received: 01010101
 All test cases passed!
-```
+</pre>
 
 **ASSISTANT:**
 
 Apologies for the confusion. It appears that the test cases are failing due to incorrect output expectations. I made a mistake in the test case expectations. Let's correct the test cases and update the testbench code:
 
-```verilog
+{% highlight verilog %}
 `timescale 1ns/1ps
 
 module tb_shift_register;
@@ -464,7 +476,7 @@ module tb_shift_register;
     end
 
 endmodule
-```
+{% endhighlight %}
 
 I updated the expected outputs for test cases 1, 2, and 3 based on the correct behavior of the shift register. Now, when you run the simulation, it should display "All test cases passed!" without any errors.
 
