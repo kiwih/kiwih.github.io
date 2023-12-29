@@ -781,7 +781,7 @@ I called the implementation for this processor the QTCore-A1 (cutie core).
 
 This is the datapath that eventually resulted (control signals are indicated with dotted lines - a moore-type multicycle FSM was used to control them). When designing the processor, I made sure that every register was also connected via a scan chain (also designed by ChatGPT-4!). This meant I could program the design once implemented, and it was also how I loaded my test programs during simulation.
 
-![qtcore-A1 datapath.]({{ 'assets/img/chip-chat/isa.png' | relative_url }}){: .mx-auto.d-block :}
+![qtcore-A1 datapath.]({{ 'assets/img/chip-chat/chip-chat-qtcore-A1-datapath.drawio.png' | relative_url }}){: .mx-auto.d-block :}
 
 I tried to synthesize using OpenLane, but drat - the design would not fit in the 1000 standard cells! The easiest thing to do was to keep trimming the memory, which I did over and over again, until I eventually hit the magic number, and managed to get just 17 bytes of combined data and instruction memory. Yikes! 
 
