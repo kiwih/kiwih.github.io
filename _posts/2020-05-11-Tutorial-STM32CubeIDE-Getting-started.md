@@ -41,7 +41,7 @@ If you're looking for a review of these, I like both of them quite a lot. The di
 As it's the cheaper board, this tutorial will focus on the `NUCLEO-F303RE` development board. 
 However, as the steps can easily be generalised, you should be able to follow along with almost any other STM32-based development board.
 
-For your convenience these are two purchase links for the dev boards, for the [Nucleo-F303RE](https://amzn.to/2BDK6ID) and the [STM32F429I-DISC1](https://amzn.to/2X4J2VC). Note that these are Amazon referral links. I've found Amazon usually has cheaper prices than anyone else, but you can also shop around for a deal that looks good to you. 
+For your convenience these are two purchase links for the dev boards, for the [Nucleo-F303RE](https://amzn.to/4g4Y2Zf) and the [STM32F429I-DISC1](https://amzn.to/4gU8fsT). Note that these are Amazon referral links. I've found Amazon usually has cheaper prices than anyone else, but you can also shop around for a deal that looks good to you. 
 Also, while the official ST boards are nice, but you might also be able to find third party ones that are cheaper (although they often come with less documentation / worked examples).
 
 # Getting started: Install STM32CubeIDE

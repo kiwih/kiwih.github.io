@@ -32,8 +32,8 @@ Today I will be using the following:
 
 * (Free) Ubuntu Linux 20.04 because developing on Linux makes me happy and Ubuntu makes it easy. Don't worry if you're on Windows, you should be able to follow along with roughly the same steps. 
 * (Free) STM32CubeIDE
-* ($19.95 from [Amazon Prime](https://amzn.to/2BDK6ID), $15.05 from [Amazon](https://amzn.to/3gEp6AA)) The `Nucleo-F303RE` development board.
-* ($6 from [Amazon Prime](https://amzn.to/33GRwXe)) Easy-to-use ribbon cables (there's more than you need here - to be honest, you'll need only one, but they're handy to have around).
+* ($19.95 from [Amazon](https://amzn.to/4g4Y2Zf)) The `Nucleo-F303RE` development board.
+* ($6 from [Amazon](https://amzn.to/3PCEalg)) Easy-to-use ribbon cables (there's more than you need here but they're handy to have around).
 
 _Note: The above Amazon links are affiliate links. As always I encourage you to shop around, but Amazon usually has pretty good pricing._
 

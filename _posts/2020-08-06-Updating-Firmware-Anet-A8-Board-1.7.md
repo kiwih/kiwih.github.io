@@ -16,7 +16,7 @@ _Note: No guarantee is provided about the correctness of these steps. They worke
 
 # Background on the Anet A8
 
-The Anet A8 is a relatively inexpensive 3d printer you can buy from e.g. [Amazon](https://amzn.to/305Kk4r) (Note: affiliate link).  
+The Anet A8 is a relatively inexpensive 3d printer you can buy from e.g. [Amazon](https://amzn.to/4joa2Ij) (Note: affiliate link).  
 
 ![The printer]({{ 'assets/img/anet-a8/the-printer.jpg' | relative_url }}){: .mx-auto.d-block :}
 
@@ -64,7 +64,7 @@ So, I decided to tackle this - here's my walkthrough on updating the firmware on
 If you think you might ever want to restore the original firmware, (or you need to flash a new Arduino bootloader for some reason), or you're like me and are deeply paranoid, then you might want to copy the original firmware from the printer to your computer before you get started.
 
 To do this you'll need an external programmer for the Anet A8's mainboard.
-The easiest tool to use for this is the _Usbasp_, which is an inexpensive programmer you can buy from most online retailers (e.g. mine came from [Amazon](https://amzn.to/2X4I3EU) (Note: affiliate link)), and the 10-pin to 6-pin programming adapter it is commonly sold with.
+The easiest tool to use for this is the _Usbasp_, which is an inexpensive programmer you can buy from most online retailers (e.g. mine came from [Amazon](https://amzn.to/4amS9p5) (Note: affiliate link)), and the 10-pin to 6-pin programming adapter it is commonly sold with.
 
 Then, using a program called _avrdude_ you can interact with the board through its programming port. 
 
