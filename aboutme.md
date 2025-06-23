@@ -8,10 +8,11 @@ My name is Hammond. This is me when I gave a speech on a stage!
 
 ![Input Port]({{ 'assets/img/aboutme/Hammond-Pearce-speech.jpg' | relative_url }}){: .mx-auto.d-block :}
 
-I have a Ph.D. in Computer Systems Engineering, with a focus on time-predictable systems and formally proving safety. Currently I work as a research asssistant professor in cybersecurity for embedded systems and additive manufacturing - [Hammond's Academic Website Link](https://www.cyberhammond.com/).
+I have a Ph.D. in Computer Systems Engineering, with a focus on time-predictable systems and formally proving safety. Currently I work as a Lecturer (equiv. Asssistant Professor) in Computer Engineering, focusing on hardware security and cybersecurity for embedded systems - [Hammond's Academic Website Link](https://www.cyberhammond.com/).
 
 I've worked at a variety of cool places, including:
-* NYU Center for Cybersecurity ([my current job!](https://cyber.nyu.edu/profile/hammond-pearce/))
+* UNSW School of Computer Science and Engineering ([my current job!](https://www.unsw.edu.au/staff/hammond-pearce))
+* NYU Center for Cybersecurity
 * NASA Ames (internship with the Intelligent Robotics Group)
 * The University of Auckland Department of Electrical, Computer, and Software Engineering (tutor, technician, professional teaching fellow)
 * Enertec Marine (contractor)
